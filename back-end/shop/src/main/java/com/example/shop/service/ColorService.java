@@ -1,0 +1,35 @@
+package com.example.shop.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.shop.entity.Color;
+import com.example.shop.repository.ColorRepository;
+import com.example.shop.util.Converter;
+
+@Service
+public class ColorService {
+
+    @Autowired
+    private ColorRepository colorRepository;
+
+    public Integer findColorId(String colorName) {
+        try {
+            String fomatedColorName = Converter.convertStringToCapitalizedForm(colorName);
+            Optional<Color> container = colorRepository.findByName(fomatedColorName);
+            if (container.isEmpty()) {
+                Color newColor = Color.builder().name(fomatedColorName).build();
+                colorRepository.save(newColor);
+            }
+            Color color = colorRepository.findByName(fomatedColorName).get();
+            return color.getId();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
+}

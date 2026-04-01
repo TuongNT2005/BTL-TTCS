@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload File</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        .container{
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,0.2);
+            text-align:center;
+            width:350px;
+        }
+
+        h2{
+            margin-bottom:20px;
+        }
+
+        input[type="file"]{
+            margin-bottom:20px;
+        }
+
+        button{
+            padding:10px 20px;
+            border:none;
+            background:#007bff;
+            color:white;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#0056b3;
+        }
+
+        #message{
+            margin-top:15px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Upload File</h2>
+
+    <input type="file" id="fileInput">
+
+    <br>
+
+    <button onclick="uploadFile()">Upload</button>
+
+    <div id="message"></div>
+</div>
+
+<script>
+
+async function uploadFile(){
+
+    const fileInput = document.getElementById("fileInput");
+    const message = document.getElementById("message");
+
+    if(fileInput.files.length === 0){
+        message.innerText = "Hãy chọn file!";
+        return;
+    }
+
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try{
+
+        const response = await fetch("http://localhost:8080/test/upload",{
+            method:"POST",
+            body: formData
+        });
+
+        if(response.ok){
+            message.innerText = "Upload thành công!";
+        }else{
+            message.innerText = "Upload thất bại!";
+        }
+
+    }catch(e){
+        message.innerText = e.message;
+    }
+
+}
+
+</script>
+
+</body>
+</html>

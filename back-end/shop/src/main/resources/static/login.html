@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng nhập - Hệ thống</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-size: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-login:hover {
+      background: #5a67d8;
+    }
+
+    .btn-login:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #e53e3e;
+      font-size: 14px;
+      margin-top: 8px;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    .success-message {
+      color: #38a169;
+      font-size: 14px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #718096;
+      font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Đăng nhập</h2>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Tên đăng nhập / Email</label>
+        <input type="text" id="username" name="username" placeholder="Nhập username hoặc email" required autofocus />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required />
+      </div>
+
+      <button type="submit" class="btn-login" id="btnLogin">Đăng nhập</button>
+    </form>
+
+    <div class="error-message" id="message"></div>
+
+    <div class="footer">
+      © 2025 - Hệ thống quản lý
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const messageEl = document.getElementById('message');
+    const btnLogin = document.getElementById('btnLogin');
+
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Xóa thông báo cũ
+      messageEl.textContent = '';
+      messageEl.className = 'error-message'; // reset class
+
+      // Lấy dữ liệu
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        showMessage('Vui lòng nhập đầy đủ thông tin', 'error');
+        return;
+      }
+
+      // Vô hiệu hóa nút khi đang xử lý
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'Đang đăng nhập...';
+      btnLogin.classList.add('loading');
+
+      try {
+        const response = await fetch('http://localhost:8080/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Giả sử backend trả về { token: "jwt-token-here", ... }
+          const token = data.token || data.accessToken;
+
+          if (token) {
+            // Lưu token (có thể dùng localStorage hoặc httpOnly cookie nếu backend hỗ trợ)
+            localStorage.setItem('token', token);
+
+            showMessage('Đăng nhập thành công! Đang chuyển hướng...', 'success');
+
+            // Redirect sau 1 giây
+            setTimeout(() => {
+              window.location.href = '/home'; // hoặc '/dashboard', '/user/profile', v.v.
+            }, 1000);
+          } else {
+            showMessage('Không nhận được token từ server', 'error');
+          }
+        } else {
+          // Xử lý lỗi từ server (401, 400, 403, ...)
+          const errorMsg = data.message || data.error || 'Đăng nhập thất bại';
+          showMessage(errorMsg, 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showMessage('Có lỗi kết nối đến server. Vui lòng thử lại sau.', 'error');
+      } finally {
+        // Bật lại nút
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'Đăng nhập';
+        btnLogin.classList.remove('loading');
+      }
+    });
+
+    function showMessage(text, type = 'error') {
+      messageEl.textContent = text;
+      messageEl.className = type === 'success' ? 'success-message' : 'error-message';
+    }
+
+    // Optional: Cho phép nhấn Enter để submit
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') {
+        loginForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+
+</body>
+</html>

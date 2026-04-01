@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/clothing_shop?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456   
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:   
+    hibernate:
+      ddl-auto: update 
+    show-sql: true       # in SQL ra console để debug
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  
+  data:
+    redis:
+      host: locahost
+      port: 6379
+
+app:   # hoặc security.jwt, jwt.config, tùy bạn chọn
+  jwt:
+    secretKey: 9c11b8604371672aac f9888b5e023f bc7c0edbadb7b6e0e5 112917cf1ca926   # bỏ dấu ngoặc kép nếu không cần
+    

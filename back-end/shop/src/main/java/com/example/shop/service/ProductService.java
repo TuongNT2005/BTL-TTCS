@@ -1,0 +1,136 @@
+package com.example.shop.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.example.shop.dto.request.CreateProductRequest;
+import com.example.shop.dto.request.UpdateProductRequest;
+import com.example.shop.entity.Product;
+import com.example.shop.entity.ProductVariant;
+import com.example.shop.exception.DuplicatedItemException;
+import com.example.shop.exception.NotFoundException;
+import com.example.shop.exception.ProductUnavlibleExeption;
+import com.example.shop.exception.QuantityNotEnoughException;
+import com.example.shop.repository.ProductRepository;
+import com.example.shop.repository.ProductVariantRepository;
+import com.example.shop.util.FileUtil;
+
+@Service
+public class ProductService {
+
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
+
+    public List<Product> searchProduct(String keyword) {
+        return productRepository.findByKeyword(keyword);
+    }
+
+    public Page<Product> searchProduct(String keyword, Pageable pageable) {
+        return productRepository.findByKeyword(keyword, pageable);
+    }
+
+    public Page<ProductVariant> getAllProductVariant(String keyword, Pageable pageable) {
+        return productVariantRepository.findByKeyword(keyword, pageable);
+    }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public ProductVariant findProductVariantById(Integer productVariantId) {
+        return productVariantRepository.findById(productVariantId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("ProductVariant với id = %d không tồn tại!", productVariantId)));
+    }
+
+    public Product findProductById(Integer productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(
+                        () -> new NotFoundException(String.format("Product với id = %d không tồn tại!", productId)));
+    }
+
+    public void checkProductVariantStatus(Integer productVariantId) {
+        ProductVariant productVariant = findProductVariantById(productVariantId);
+        if (productVariant.getStatus() != ProductVariant.Status.AVALIBLE) {
+            throw new ProductUnavlibleExeption(
+                    String.format("Biến thể với id=%d đang không được bán trên cửa hàng!", productVariantId));
+        }
+    }
+
+    public void checkQuantity(Integer productVariantId, Integer quantity) {
+        ProductVariant productVariant = findProductVariantById(productVariantId);
+        if (productVariant.getQuantity() < quantity) {
+            throw new QuantityNotEnoughException(
+                    String.format("ProductVariant với id = %d không đủ số lượng!", productVariantId));
+        }
+    }
+
+    public void checkDuplicateProduct(String name, String category, Integer id) {
+        Optional<Product> product = productRepository.findByNameIgnoreCaseAndCategory(name,
+                Product.Category.valueOf(category));
+        if (product.isPresent() && product.get().getId() != id) {
+                throw new DuplicatedItemException(
+                    String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category)); 
+        }
+    }
+
+        public void checkDuplicateProduct(String name, String category) {
+        Optional<Product> product = productRepository.findByNameIgnoreCaseAndCategory(name,
+                Product.Category.valueOf(category));
+        if (product.isPresent()) {
+                throw new DuplicatedItemException(
+                    String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category)); 
+        }
+    }
+
+    public Product createNewProduct(CreateProductRequest request) {
+        checkDuplicateProduct(request.getName(), request.getCategory());
+
+        try {
+            String imgName = FileUtil.saveFileToDir(request.getImg(), "product", FileUtil.genFileName("product_"));
+            Product product = Product.builder()
+                    .category(Product.Category.valueOf(request.getCategory()))
+                    .description(request.getDescription())
+                    .image(imgName)
+                    .name(request.getName())
+                    .build();
+
+            productRepository.save(product);
+            return product;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Product updateProduct(UpdateProductRequest request) {
+
+        Product product = findProductById(request.getId());
+        checkDuplicateProduct(request.getName(), request.getCategory(), request.getId());
+        try {
+            if (FileUtil.isFilePresent(request.getImg())) {
+                FileUtil.deleteFile(product.getImage());
+                String fileName = FileUtil.saveFileToDir(request.getImg(), "product", FileUtil.genFileName("product_"));
+                product.setImage(fileName);
+            }
+
+            product.setCategory(Product.Category.valueOf(request.getCategory()));
+            product.setName(request.getName());
+            product.setDescription(request.getDescription());
+
+            productRepository.save(product);
+
+            return product;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+}

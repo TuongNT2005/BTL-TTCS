@@ -1,0 +1,17 @@
+
+#sidebar-trigger:checked + div #nav-text {
+    display: none;
+
+}
+
+#sidebar-trigger:checked + div #sidebar-item {
+    justify-content: center;
+
+}
+
+#sidebar-trigger:checked + div #nav-trigger-lable {
+    transform: rotateY(180deg)
+}
+* {
+    transition-duration: 0.5s;
+}
