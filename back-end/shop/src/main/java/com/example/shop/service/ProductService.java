@@ -9,13 +9,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.shop.dto.request.CreateProductRequest;
+import com.example.shop.dto.request.EditProductVariantRequest;
 import com.example.shop.dto.request.UpdateProductRequest;
+import com.example.shop.entity.OrderItem;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.exception.DuplicatedItemException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.exception.ProductUnavlibleExeption;
 import com.example.shop.exception.QuantityNotEnoughException;
+import com.example.shop.repository.OrderItemRepository;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import com.example.shop.util.FileUtil;
@@ -27,6 +30,8 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private ProductVariantRepository productVariantRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     public List<Product> searchProduct(String keyword) {
         return productRepository.findByKeyword(keyword);
@@ -76,17 +81,17 @@ public class ProductService {
         Optional<Product> product = productRepository.findByNameIgnoreCaseAndCategory(name,
                 Product.Category.valueOf(category));
         if (product.isPresent() && product.get().getId() != id) {
-                throw new DuplicatedItemException(
-                    String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category)); 
+            throw new DuplicatedItemException(
+                    String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category));
         }
     }
 
-        public void checkDuplicateProduct(String name, String category) {
+    public void checkDuplicateProduct(String name, String category) {
         Optional<Product> product = productRepository.findByNameIgnoreCaseAndCategory(name,
                 Product.Category.valueOf(category));
         if (product.isPresent()) {
-                throw new DuplicatedItemException(
-                    String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category)); 
+            throw new DuplicatedItemException(
+                    String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category));
         }
     }
 
@@ -128,6 +133,53 @@ public class ProductService {
             productRepository.save(product);
 
             return product;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public ProductVariant updateProductVariantById(EditProductVariantRequest request) {
+        try {
+            ProductVariant productVariant = findProductVariantById(request.getId());
+            if (FileUtil.isFilePresent(request.getImg())) {
+                FileUtil.deleteFile(productVariant.getImage());
+                String fileName = FileUtil.saveFileToDir(request.getImg(), "productVariant",
+                        FileUtil.genFileName("productVariant_"));
+                productVariant.setImage(fileName);
+            }
+            productVariant.setPurchasePrice(request.getPurchasePrice());
+            productVariant.setStatus(ProductVariant.Status.valueOf(request.getStatus()));
+            productVariantRepository.save(productVariant);
+            return productVariant;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public List<Product> findAllProductByEventId(Integer eventId) {
+        try {
+            return productRepository.findAllProductByEventId(eventId);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Product findByOrderItemId(Integer orderItemId) {
+        return productRepository.findByOrderItemId(orderItemId)
+            .orElseThrow(() -> new NotFoundException("Không tìm được biens thể!"));
+    }
+
+    public ProductVariant findProductVariantByOrderItemId(Integer orderItemId) {
+        return productVariantRepository.findByOrderitemId(orderItemId)
+            .orElseThrow(() -> new NotFoundException("Không tìm được biens thể!"));
+    }
+
+    public List<ProductVariant> findAllProductVariantByProductId(Integer productId) {
+        try {
+            return productVariantRepository.findAllByProductId(productId);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());

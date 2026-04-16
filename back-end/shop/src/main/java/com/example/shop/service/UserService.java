@@ -1,9 +1,9 @@
 package com.example.shop.service;
 
-import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +12,7 @@ import com.example.shop.dto.response.CreateUserResponse;
 import com.example.shop.entity.User;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.UserRepository;
+import com.example.shop.util.ConstantVal;
 
 @Service
 public class UserService {
@@ -56,4 +57,13 @@ public class UserService {
 
     }
 
+    public Page<User> searchlUser(Integer pageNumber, String keyword) {
+        return userRepository.searchUser(PageRequest.of(pageNumber, ConstantVal.itemPerPage), keyword);
+    }
+
+    public User findUserByUserId(Integer userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new NotFoundException(String.format("Người dùng với id=%d không tồn tại!", userId)));
+    }
+    
 }

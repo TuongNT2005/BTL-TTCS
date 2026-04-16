@@ -9,6 +9,8 @@ import { useState } from "react";
 import AdminPage from "./components/template/AdminPage/AdminPage";
 import AdminPageProductTab from "./components/template/AdminProductTab/AdminProductTab";
 import AdminProductCVariantTab from "./components/template/AdminProductVariantTab/AdminProductVariantTab";
+import Admin from "./pages/Admin/Admin";
+import Home from "./pages/Home/Home";
 
 function App() {
 
@@ -24,9 +26,10 @@ function App() {
       <>
         <Routes>
           <Route index element={<LoginPage />} />
-          <Route path="ad" element={<AdminPageProductTab></AdminPageProductTab>}></Route>
+          <Route path="ad" element={<Admin></Admin>}></Route>
           <Route path="warehouse" element={<AdminProductCVariantTab></AdminProductCVariantTab>}></Route>
           <Route path="registration" element={<RegistrationPage />}></Route>
+          <Route path="home" element={<Home></Home>}></Route>
         </Routes>
 
       </>

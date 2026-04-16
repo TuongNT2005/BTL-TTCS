@@ -3,7 +3,6 @@ package com.example.shop.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +25,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @Table(name = "product")
-@JsonPropertyOrder({ "id", "image", "name", "category", "description" })
 public class Product {
 
     public static enum Category {

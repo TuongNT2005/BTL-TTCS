@@ -18,3 +18,11 @@
   margin: 0;
   
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}

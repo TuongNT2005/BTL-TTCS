@@ -2,6 +2,7 @@ package com.example.shop.dto.model;
 
 import java.util.List;
 
+import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.Order;
 import com.example.shop.entity.OrderItem;
 
@@ -18,8 +19,6 @@ import lombok.Setter;
 @Builder
 public class OrderDetail {
     private Order order;
-    private List<OrderItem> orderItems;
-    private Long price;
-    private Long coinUsed;
-    private Long finalPrice;
+    private List<OrderItemDTO> orderItems;
+    private Long price; 
 }

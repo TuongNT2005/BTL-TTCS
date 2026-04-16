@@ -5,6 +5,8 @@ import com.example.shop.repository.UserRepository;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.shop.dto.request.CreateRefundRequest;
@@ -15,18 +17,24 @@ import com.example.shop.entity.User;
 import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.RefundRequestRepository;
+import com.example.shop.util.ConstantVal;
 import com.example.shop.util.FileUtil;
 
 @Service
 public class RefundService {
 
-    @Autowired private OrderService orderService;
-    @Autowired private AuthService authService;
-    @Autowired private RefundRequestRepository refundRequestRepository;
-    @Autowired private UserService userService;
-    @Autowired private UserRepository userRepository;
-    @Autowired private OrderItemRepository orderItemRepository;
-
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private RefundRequestRepository refundRequestRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     public RefundRequest createNewRefundRequest(CreateRefundRequest request) {
         OrderItem orderItem = orderService.findOrderItemById(request.getOrderItemId());
@@ -65,10 +73,10 @@ public class RefundService {
 
     public RefundRequest checkRefundCoinCondition(Integer refundRequestId) {
         RefundRequest refundRequest = findByRefundRequestId(refundRequestId);
-        if(refundRequest.getStatus() != RefundRequest.Status.ACCEPTED) {
+        if (refundRequest.getStatus() != RefundRequest.Status.ACCEPTED) {
             throw new ActionUnavalibleException(String.format(
-                "Không thể thực hiện hoàn coin vì trạng thái của yêu cầu hoàn tiền, hoàn hàng đang là: %s", 
-                refundRequest.getStatus().toString()));
+                    "Không thể thực hiện hoàn coin vì trạng thái của yêu cầu hoàn tiền, hoàn hàng đang là: %s",
+                    refundRequest.getStatus().toString()));
         }
         return refundRequest;
     }
@@ -94,12 +102,18 @@ public class RefundService {
     }
 
     public RefundRequest handleRefundRequest(HandleRefundRequest request) {
+        if(!isStatusValid(request.getStatus())) {
+            throw new ActionUnavalibleException("Không thể thực hiện do trạng thái không hợp lệ!");
+        }
         RefundRequest refundRequest = findByRefundRequestId(request.getRefundRequestId());
         try {
             refundRequest.setStatus(RefundRequest.Status.valueOf(request.getStatus()));
             OrderItem orderItem = orderService.findOrderItemById(refundRequest.getOrderItemId());
-            if(refundRequest.getStatus() == RefundRequest.Status.REJECTED) {
+            if (refundRequest.getStatus() == RefundRequest.Status.REJECTED) {
                 orderItem.setReturned(OrderItem.Returned.FALSE);
+            }
+            else {
+                orderItem.setReturned(OrderItem.Returned.PENDING);
             }
 
             orderItemRepository.save(orderItem);
@@ -109,6 +123,30 @@ public class RefundService {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
 
+    public Boolean isStatusValid(String status) {
+        if (status == null || status.trim().equals(""))
+            return false;
+        String upperCaseStatus = status.toUpperCase();
+        if (!(upperCaseStatus.equals("PENDING") || upperCaseStatus.equals("ACCEPTED")
+                || upperCaseStatus.equals("REJECTED") || upperCaseStatus.equals("DONE"))) {
+            return false;
+        }
+        return true;
+    }
+
+    public Page<RefundRequest> searchRefundRequest(Integer pageNumber, String status, String keyword) {
+        try {
+            if (!isStatusValid(status)) {
+                if(status != null && !status.trim().equals("")) {
+                    throw new ActionUnavalibleException("Không thể thực hiện do trạng thái không hợp lệ!");
+                } 
+            }
+            return refundRequestRepository.searchRefundRequest(PageRequest.of(pageNumber, ConstantVal.itemPerPage), status, keyword);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/payment")
@@ -53,7 +52,7 @@ public class PaymentController {
     @GetMapping("/handle-result")
     public ResponseEntity<?> handleResult(HttpServletRequest request) throws UnsupportedEncodingException {
         Map<String, String> paymentResult = vnpayPaymentService.getResult(request);
-        Order order = orderService.setOrderStatus(paymentResult);
+        Order order = orderService.setOrderPaidStatus(paymentResult);
 
         PaymentResponse paymentResponse = PaymentResponse.builder()
                 .orderId(paymentResult.get("vnp_TxnRef"))

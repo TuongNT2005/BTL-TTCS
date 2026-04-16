@@ -18,12 +18,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.shop.dto.model.ApiResponse;
 import com.example.shop.dto.request.CreateProductRequest;
+import com.example.shop.dto.request.EditProductVariantRequest;
 import com.example.shop.dto.request.UpdateProductRequest;
 import com.example.shop.dto.response.CreateProductResponse;
+import com.example.shop.dto.response.ProductDTO;
+import com.example.shop.dto.response.ProductVariantDTO;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
+import com.example.shop.service.ColorService;
+import com.example.shop.service.EventService;
 import com.example.shop.service.ProductService;
 import com.example.shop.util.ConstantVal;
+import com.example.shop.util.Converter;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -31,110 +38,163 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+        @Autowired
+        private ProductService productService;
+        @Autowired
+        private ColorService colorService;
+        @Autowired
+        private EventService eventService;
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Page<Product>>> searchProduct(
-            @RequestParam(name = "keyword") String keyword,
-            @RequestParam(name = "page") Integer page) {
+        @GetMapping("/search")
+        public ResponseEntity<?> searchProduct(
+                        @RequestParam(name = "keyword") String keyword,
+                        @RequestParam(name = "page") Integer page) {
 
-        Page<Product> products = productService.searchProduct(
-                keyword,
-                PageRequest.of(page - 1, ConstantVal.itemPerPage));
+                Page<Product> res = productService.searchProduct(
+                                keyword,
+                                PageRequest.of(page - 1, ConstantVal.itemPerPage));
 
-        ApiResponse<Page<Product>> response = ApiResponse.<Page<Product>>builder()
-                .code(200)
-                .message("Lấy dữ liệu thành công!")
-                .data(products)
-                .build();
+                Page<ProductDTO> products = res.map(product -> {
+                        List<ProductVariant> productVariants = productService
+                                        .findAllProductVariantByProductId(product.getId());
+                        List<ProductVariantDTO> productVariantDTOs = new ArrayList<>();
+                        for (ProductVariant productVariant : productVariants) {
+                                productVariantDTOs.add(Converter.convertProductToProductVariantDTO(productVariant,
+                                                product, colorService, eventService));
+                        }
+                        return Converter.convertProductToProductDTO(product, productVariantDTOs);
+                });
 
-        return ResponseEntity.ok(response);
-    }
+                ApiResponse<Page<ProductDTO>> response = ApiResponse.<Page<ProductDTO>>builder()
+                                .code(200)
+                                .message("Lấy dữ liệu thành công!")
+                                .data(products)
+                                .build();
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createNewProduct(CreateProductRequest request) {
-        Product product = productService.createNewProduct(request);
+                return ResponseEntity.ok(response);
+        }
 
-        ApiResponse<CreateProductResponse> response = ApiResponse.<CreateProductResponse>builder()
-                .code(200)
-                .message("Thêm sản phẩm mới thành công!")
-                .data(CreateProductResponse.builder().product(product).build())
-                .build();
+        @PostMapping("/create")
+        public ResponseEntity<?> createNewProduct(CreateProductRequest request) {
+                Product product = productService.createNewProduct(request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+                ApiResponse<CreateProductResponse> response = ApiResponse.<CreateProductResponse>builder()
+                                .code(200)
+                                .message("Thêm sản phẩm mới thành công!")
+                                .data(CreateProductResponse.builder().product(product).build())
+                                .build();
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateProduct(UpdateProductRequest request) {
-        Product updatedProduct = productService.updateProduct(request);
-        ApiResponse<Product> response = ApiResponse.<Product>builder()
-                .code(200)
-                .message("Cập nhập thông tin sản phẩm thành công!")
-                .data(updatedProduct)
-                .build();
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+        @PutMapping("/update")
+        public ResponseEntity<?> updateProduct(UpdateProductRequest request) {
+                Product updatedProduct = productService.updateProduct(request);
+                ApiResponse<Product> response = ApiResponse.<Product>builder()
+                                .code(200)
+                                .message("Cập nhập thông tin sản phẩm thành công!")
+                                .data(updatedProduct)
+                                .build();
 
-    @GetMapping("/products")
-    public ResponseEntity<?> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        ApiResponse<List<Product>> response = ApiResponse.<List<Product>>builder()
-                .code(200)
-                .message("Lấy thông tin sản phẩm thành công!")
-                .data(products)
-                .build();
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+        @GetMapping("/products")
+        public ResponseEntity<?> getAllProducts() {
+                List<Product> products = productService.getAllProducts();
+                ApiResponse<List<Product>> response = ApiResponse.<List<Product>>builder()
+                                .code(200)
+                                .message("Lấy thông tin sản phẩm thành công!")
+                                .data(products)
+                                .build();
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable(name = "id") Integer id) {
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
 
-        Product product = productService.findProductById(id);
+        @GetMapping("/{id}")
+        public ResponseEntity<?> getProductById(@PathVariable(name = "id") Integer id) {
 
-        Map<String, Object> data = new TreeMap<String, Object>();
-        data.put("product", product);
-        data.put("categories", Product.getCategories());
+                Product product = productService.findProductById(id);
+                List<ProductVariant> productVariants = productService.findAllProductVariantByProductId(product.getId());
+                List<ProductVariantDTO> productVariantDTOs = new ArrayList<>();
+                for (ProductVariant productVariant : productVariants) {
+                        productVariantDTOs.add(Converter.convertProductToProductVariantDTO(productVariant, product,
+                                        colorService, eventService));
+                }
 
-        ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
-                .code(200)
-                .message("Lấy thông sản phẩm thành công!")
-                .data(data)
-                .build();
+                Map<String, Object> data = new TreeMap<String, Object>();
+                data.put("product", product);
+                data.put("productVariant", productVariantDTOs); 
+                data.put("categories", Product.getCategories());
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+                ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+                                .code(200)
+                                .message("Lấy thông sản phẩm thành công!")
+                                .data(data)
+                                .build();
 
-    @GetMapping("/product-variants")
-    public ResponseEntity<?> findProductVariants (
-        @RequestParam(name = "keyword") String keyword,
-        @RequestParam(name = "page") Integer page) {
-        Page<ProductVariant> products = productService.getAllProductVariant(
-                keyword,
-                PageRequest.of(page - 1, ConstantVal.itemPerPage));
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
 
-        ApiResponse<Page<ProductVariant>> response = ApiResponse.<Page<ProductVariant>>builder()
-                .code(200)
-                .message("Lấy dữ liệu thành công!")
-                .data(products)
-                .build();
+        @GetMapping("/product-variants")
+        public ResponseEntity<?> findProductVariants(
+                        @RequestParam(name = "keyword") String keyword,
+                        @RequestParam(name = "page") Integer page) {
+                Page<ProductVariant> res = productService.getAllProductVariant(
+                                keyword,
+                                PageRequest.of(page - 1, ConstantVal.itemPerPage));
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-    
-    @GetMapping("/product-variant/{id}")
-    public ResponseEntity<?> getProductVariantById(@PathVariable(name = "id") Integer id) {
-        
-        ProductVariant productVariant = productService.findProductVariantById(id);
-        ApiResponse<ProductVariant> response = ApiResponse.<ProductVariant>builder()
-                .code(200)
-                .message("Lấy dữ liệu thành công!")
-                .data(productVariant)
-                .build();
-        
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-    
+                Page<ProductVariantDTO> productVariants = res.map(productVariant -> {
+                        Product product = productService.findProductById(productVariant.getProductId());
+                        return Converter.convertProductToProductVariantDTO(productVariant, product, colorService,
+                                        eventService);
+                });
+
+                Map<String, Integer> productList = new TreeMap<>();
+                List<Product> products = productService.getAllProducts();
+                for (Product product : products) {
+                        productList.put(product.getName(), product.getId());
+                }
+
+                Map<String, Object> data = new TreeMap<>();
+                data.put("productVariants", productVariants);
+                data.put("productList", productList);
+
+                ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+                                .code(200)
+                                .message("Lấy dữ liệu thành công!")
+                                .data(data)
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+
+        @GetMapping("/product-variant/{id}")
+        public ResponseEntity<?> getProductVariantById(@PathVariable(name = "id") Integer id) {
+
+                ProductVariant productVariant = productService.findProductVariantById(id);
+                Product product = productService.findProductById(productVariant.getProductId());
+                ApiResponse<ProductVariantDTO> response = ApiResponse.<ProductVariantDTO>builder()
+                                .code(200)
+                                .message("Lấy dữ liệu thành công!")
+                                .data(Converter.convertProductToProductVariantDTO(productVariant, product, colorService,
+                                                eventService))
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+
+        @PutMapping("/product-variant")
+        public ResponseEntity<?> updateProductVariant(EditProductVariantRequest request) {
+                ProductVariant productVariant = productService.updateProductVariantById(request);
+
+                ApiResponse<ProductVariant> response = ApiResponse.<ProductVariant>builder()
+                                .code(200)
+                                .message("Cập nhập thành công!")
+                                .data(productVariant)
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+
 }

@@ -1,5 +1,7 @@
 package com.example.shop.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,6 +39,6 @@ public class Comment {
     @Column(name = "star")
     private Integer star;
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "createdat")
+    private LocalDate createdAt;
 }

@@ -26,7 +26,7 @@ import lombok.Setter;
 public class Order {
 
     public static enum Status {
-        PENDING, PAID, CANCEL, EXPRIED
+        PENDING, PAID, CANCEL, EXPRIED, DELIVERIED
     }
 
     @Id

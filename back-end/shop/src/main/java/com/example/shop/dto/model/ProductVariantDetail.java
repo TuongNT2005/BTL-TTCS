@@ -1,27 +1,36 @@
 package com.example.shop.dto.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.example.shop.entity.ProductVariant;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class ProductVariantDetail {
 
     private Integer id;
-    private Integer productId;
-    private String color;
-    private String size;
     private Long importCost;
     private Long purchasePrice;
     private String status;
     private Integer quantity;
     private String image;
+    private String size;
+    private String name;
+    private String color;
 
-    
+    public ProductVariantDetail(ProductVariant productVariant, String name, String color) {
+        this.id = productVariant.getId();
+        this.importCost = productVariant.getImportCost();
+        this.purchasePrice = productVariant.getPurchasePrice();
+        this.status = productVariant.getStatus().toString();
+        this.quantity = productVariant.getQuantity();
+        this.image = productVariant.getImage();
+        this.size = productVariant.getSize().toString();
+        this.name = name;
+        this.color = color;
+    }
+
 }

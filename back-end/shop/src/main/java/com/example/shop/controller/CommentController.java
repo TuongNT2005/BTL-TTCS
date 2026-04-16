@@ -1,5 +1,8 @@
 package com.example.shop.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,9 +12,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.shop.dto.model.ApiResponse;
 import com.example.shop.dto.request.CreateNewCommentRequest;
+import com.example.shop.dto.response.CommentDTO;
 import com.example.shop.dto.response.CreateNewCommentResponse;
 import com.example.shop.entity.Comment;
+import com.example.shop.entity.User;
 import com.example.shop.service.CommentService;
+import com.example.shop.service.UserService;
+import com.example.shop.util.Converter;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @Controller
@@ -19,6 +31,7 @@ import com.example.shop.service.CommentService;
 public class CommentController {
 
     @Autowired private CommentService commentService;
+    @Autowired private UserService userService;
 
     @PostMapping(value = "/create", consumes = "multipart/form-data")
     public ResponseEntity<?> postMethodName(CreateNewCommentRequest request) {
@@ -36,5 +49,25 @@ public class CommentController {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> getAllCommentByProductId(@PathVariable(name = "productId") Integer productId) {
+
+        List<Comment> comments = commentService.getAllCommentsByProductId(productId);
+        List<CommentDTO> commentDTOs = new ArrayList<>();
+        for(Comment comment : comments) {
+            User user = userService.findUserById(comment.getUserId());
+            commentDTOs.add(new CommentDTO(Converter.convertUserToUserDTO(user), comment));
+        }
+
+        ApiResponse<List<CommentDTO>> response = ApiResponse.<List<CommentDTO>>builder()
+            .code(200)
+            .message("Lấy dữ liệu các bình luận thành công!")
+            .data(commentDTOs)
+            .build(); 
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
     
 }

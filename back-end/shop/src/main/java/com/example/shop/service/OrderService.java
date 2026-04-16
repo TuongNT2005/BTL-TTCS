@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.example.shop.dto.model.OrderDetail;
-import com.example.shop.dto.response.PaymentResponse;
+import com.example.shop.dto.response.OrderDTO;
+import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.CartItem;
 import com.example.shop.entity.Order;
 import com.example.shop.entity.OrderItem;
+import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.entity.User;
 import com.example.shop.exception.ActionUnavalibleException;
@@ -44,8 +47,10 @@ public class OrderService {
     private CartItemRepository cartItemRepository;
     @Autowired
     private UserService userService;
-    @Autowired 
+    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    ColorService colorService;
 
     public Order createNewOrder(List<Integer> cartItemIds, User user) {
 
@@ -167,31 +172,6 @@ public class OrderService {
         return order;
     }
 
-    public OrderDetail getOrderDetail(Integer orderId) {
-        Order order = findOrderById(orderId);
-        List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
-
-        try {
-            Long price = 0l;
-            for (OrderItem orderItem : orderItems) {
-                price += 1l * orderItem.getPrice() * orderItem.getQuantity();
-            }
-            price = price - order.getCoinUsed();
-
-            return OrderDetail.builder()
-                    .order(order)
-                    .orderItems(orderItems)
-                    .coinUsed(order.getCoinUsed())
-                    .price(price)
-                    .finalPrice(price - order.getCoinUsed())
-                    .build();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-
-    }
-
     public OrderItem findOrderItemById(Integer orderItemId) {
         return orderItemRepository.findById(orderItemId)
                 .orElseThrow(
@@ -203,12 +183,12 @@ public class OrderService {
         List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
         Long totalPrice = 0l;
         for (OrderItem orderItem : orderItems) {
-            totalPrice += 1l * orderItem.getPrice();
+            totalPrice += 1l * orderItem.getPrice() * orderItem.getQuantity();
         }
         return Converter.convertPriceFromDoubleToLong(1.0 * (totalPrice - order.getCoinUsed()));
     }
 
-    public Order setOrderStatus(Map<String, String> paymentResult) {
+    public Order setOrderPaidStatus(Map<String, String> paymentResult) {
         Integer orderId = Integer.valueOf(paymentResult.get("vnp_TxnRef"));
         Order order = findOrderById(orderId);
 
@@ -220,9 +200,10 @@ public class OrderService {
                     paymentResult.get("vnp_TransactionStatus").equals("00")) {
                 order.setStatus(Order.Status.PAID);
                 order.setPaidAt(LocalDateTime.now());
-                
+
                 User user = userService.findUserById(order.getUserId());
-                user.setCoin(user.getCoin() - order.getCoinUsed() + Converter.convertPriceFromDoubleToLong(1.0 * calTotalPriceByOrderId(orderId) / 20.0));
+                user.setCoin(user.getCoin() - order.getCoinUsed()
+                        + Converter.convertPriceFromDoubleToLong(1.0 * calTotalPriceByOrderId(orderId) / 20.0));
 
                 orderRepository.save(order);
                 userRepository.save(user);
@@ -233,6 +214,79 @@ public class OrderService {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
 
+    public OrderDTO getOrderDTObyOrderId(Integer orderId) {
+        try {
+            Order order = findOrderById(orderId);
+            User user = userService.findUserById(order.getUserId());
+            List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
+            List<OrderItemDTO> orderItemDTOs = new ArrayList<>();
+            for (OrderItem orderItem : orderItems) {
+                Integer orderItemId = orderItem.getId();
+                Product prodcut = productService.findByOrderItemId(orderItemId);
+                ProductVariant productVariant = productService.findProductVariantById(orderItem.getProductVariantId());
+                String color = colorService.findColorNameById(productVariant.getColorId());
+                orderItemDTOs.add(Converter.convertOrderItemToOrderItemDTO(orderItem, prodcut, color, productVariant));
+            }
+
+            return OrderDTO.builder()
+                    .order(order)
+                    .user(Converter.convertUserToUserDTO(user))
+                    .orderItems(orderItemDTOs)
+                    .price(calTotalPriceByOrderId(orderId))
+                    .build();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
+    public Page<OrderDTO> findOrderByStatus(String status, Integer page) {
+        try {
+            Page<Order> orders = orderRepository.findAllByStatus(PageRequest.of(page, ConstantVal.itemPerPage), status);
+            Page<OrderDTO> orderDTOs = orders.map(order -> {
+                User user = userService.findUserById(order.getUserId());
+                List<OrderItem> orderItems = findOrderItemsByOrderId(order.getId());
+                List<OrderItemDTO> orderItemDTOs = new ArrayList<>();
+                for (OrderItem orderItem : orderItems) {
+                    Integer orderItemId = orderItem.getId();
+                    Product prodcut = productService.findByOrderItemId(orderItemId);
+                    ProductVariant productVariant = productService
+                            .findProductVariantById(orderItem.getProductVariantId());
+                    String color = colorService.findColorNameById(productVariant.getColorId());
+                    orderItemDTOs
+                            .add(Converter.convertOrderItemToOrderItemDTO(orderItem, prodcut, color, productVariant));
+                }
+
+                return OrderDTO.builder()
+                        .order(order)
+                        .user(Converter.convertUserToUserDTO(user))
+                        .orderItems(orderItemDTOs)
+                        .price(calTotalPriceByOrderId(order.getId()))
+                        .build();
+            });
+            return orderDTOs;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
+    public Order comfirmSendingOrder(Integer orderId) {
+        try {
+            Order order = findOrderById(orderId);
+            if (order.getStatus().toString() != "PAID") {
+                throw new ActionUnavalibleException("Không thể thực hiện do đơn hàng chưa được thanh toán!");
+            }
+            order.setStatus(Order.Status.valueOf("DELIVERIED"));
+            orderRepository.save(order);
+            return order;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

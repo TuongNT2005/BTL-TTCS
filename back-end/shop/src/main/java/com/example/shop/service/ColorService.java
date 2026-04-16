@@ -15,6 +15,7 @@ public class ColorService {
     @Autowired
     private ColorRepository colorRepository;
 
+
     public Integer findColorId(String colorName) {
         try {
             String fomatedColorName = Converter.convertStringToCapitalizedForm(colorName);
@@ -30,6 +31,11 @@ public class ColorService {
             throw new RuntimeException(e.getMessage());
         }
 
+    }
+
+    public String findColorNameById(Integer colorId) {
+        return colorRepository.findNameById(colorId)
+            .orElseThrow(() -> new RuntimeException(String.format("Không tồn tại màu sắc ứng với id=%d", colorId)));
     }
 
 }

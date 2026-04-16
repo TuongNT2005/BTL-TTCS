@@ -28,4 +28,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     
     @Query(value = "select productId from product_event where eventId=:eventId", nativeQuery = true)
     public List<Integer> findAllProductIdByEventId(@Param("eventId") Integer eventId);
+    
+    @Query(value = "SELECT p.* FROM PRODUCT_EVENT pe LEFT JOIN PRODUCT p ON pe.productId = p.id WHERE pe.eventId = :eventId", nativeQuery = true)
+    public List<Product> findAllProductByEventId(@Param(value = "eventId") Integer eventId);
+    
+    @Query(value = "SELECT a.* FROM PRODUCT a LEFT JOIN PRODUCTVARIANT b on a.id = b.productId LEFT JOIN ORDERITEM c on b.id = c.productVariantId WHERE c.id = :orderItemId", nativeQuery = true)
+    public Optional<Product> findByOrderItemId(@Param(value = "orderItemId") Integer orderItemId);
 }

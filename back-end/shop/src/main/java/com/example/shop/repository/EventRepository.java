@@ -1,8 +1,11 @@
 package com.example.shop.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,8 +21,8 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query(value = "SELECT e.*\n" + //
             "FROM PRODUCT_EVENT pe\n" + //
             "LEFT JOIN EVENT e ON pe.eventId = e.id\n" + //
-            "WHERE pe.productId = 1\n" + //
-            "AND e.endAt > NOW();", nativeQuery = true)
+            "WHERE pe.productId = :productId\n" + //
+            "AND e.endAt >= NOW() AND e.startAt <= NOW();", nativeQuery = true)
     public List<Event> findAllByProductId(@Param("productId") Integer productId);
 
     public Optional<Event> findByTitleIgnoringCase(String title);
@@ -33,4 +36,14 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Transactional
     @Query(value = "DELETE FROM product_event WHERE productId=:productId AND eventId=:eventId", nativeQuery = true)
     public void deleteProductFromEvent(@Param("productId") Integer productId, @Param("eventId") Integer eventId);
+
+    @Query( value = "SELECT * FROM EVENT WHERE TITLE LIKE CONCAT('%', :keyword, '%') AND  ((:startAt IS NULL OR ENDAT >= :startAt) AND (:endAt IS NULL OR STARTAT <= :endAt))",
+            countQuery = "SELECT COUNT(*) FROM EVENT WHERE TITLE LIKE CONCAT('%', :keyword, '%') AND  ((:startAt IS NULL OR ENDAT >= :startAt) AND (:endAt IS NULL OR STARTAT <= :endAt))",
+            nativeQuery = true)
+    public Page<Event> findAllEvents(Pageable pageable, @Param(value = "keyword") String keyword,
+                                                        @Param(value = "startAt") LocalDate startAt,
+                                                        @Param(value = "endAt") LocalDate endAt
+                                                        
+    );
+
 }

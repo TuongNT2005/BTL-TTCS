@@ -14,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class CreateNewCommentRequest {
+    private Integer userId;
     private String content;
     private Integer star;
     private MultipartFile file;

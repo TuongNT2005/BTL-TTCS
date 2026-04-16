@@ -2,17 +2,28 @@ package com.example.shop.util;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.example.shop.dto.model.ProductVariantDetail;
 import com.example.shop.dto.response.AddToCartResponse;
 import com.example.shop.dto.response.CancelOrderResponse;
 import com.example.shop.dto.response.CreateNewOrderResponse;
+import com.example.shop.dto.response.EventDTO;
+import com.example.shop.dto.response.OrderItemDTO;
+import com.example.shop.dto.response.ProductDTO;
+import com.example.shop.dto.response.ProductVariantDTO;
+import com.example.shop.dto.response.RefundRequestDTO;
+import com.example.shop.dto.response.UserDTO;
 import com.example.shop.entity.CartItem;
+import com.example.shop.entity.Event;
 import com.example.shop.entity.Order;
+import com.example.shop.entity.OrderItem;
+import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
+import com.example.shop.entity.RefundRequest;
+import com.example.shop.entity.User;
 import com.example.shop.service.ColorService;
+import com.example.shop.service.EventService;
+
 
 public class Converter {
 
@@ -45,6 +56,7 @@ public class Converter {
     }
 
     public static LocalDate StringToLocalDate(String date) {
+        if(date == null || date.equals("")) return null;
         return LocalDate.parse(date,DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
 
@@ -61,6 +73,70 @@ public class Converter {
 
     public static long convertPriceFromDoubleToLong(Double price) {
         return (long) (price / 1000) * 1000l;
+    }
+
+    public static ProductVariantDTO convertProductToProductVariantDTO(ProductVariant productVariant, Product product, ColorService colorService, EventService eventService) {
+        String colorName = colorService.findColorNameById(productVariant.getColorId());
+        Integer discount = eventService.findDiscounts(product.getId());
+        return new ProductVariantDTO(productVariant, product.getName(), colorName, discount);
+    }
+
+    public static ProductDTO convertProductToProductDTO(Product product, List<ProductVariantDTO> productVariants) {
+        return ProductDTO.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .image(product.getImage())
+            .category(product.getCategory().toString())
+            .productVariants(productVariants)
+            .build();
+    }
+
+    public static UserDTO convertUserToUserDTO(User user) {
+        return UserDTO.builder()
+            .id(user.getId())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .address(user.getAddress())
+            .coin(user.getCoin())
+            .status(user.getStatus().toString())
+            .build();
+    }
+
+    public static EventDTO convertEventToEventDTO(Event event) {
+        return EventDTO.builder()
+            .id(event.getId())
+            .title(event.getTitle())
+            .discount(event.getDiscount())
+            .startAt(event.getStartAt())
+            .endAt(event.getEndAt())
+            .description(event.getDescription())
+            .image(event.getImage())
+            .build();
+    }
+
+    public static RefundRequestDTO convertRefundRequestToRefundRequestDTO(RefundRequest refundRequest, User user, Product product, String color, ProductVariant productVariant) {
+        return RefundRequestDTO.builder()
+            .id(refundRequest.getId())
+            .username(user.getUsername())
+            .productName(product.getName() + " - " + color + " - " + productVariant.getSize().toString())
+            .image(refundRequest.getImage())
+            .reason(refundRequest.getReason())
+            .status(refundRequest.getStatus().toString())
+            .createdAt(refundRequest.getCreatedAt().toString())
+            .build();
+    }
+
+    public static OrderItemDTO convertOrderItemToOrderItemDTO(OrderItem orderItem, Product prodcut, String color, ProductVariant productVariant) {
+        return OrderItemDTO.builder()
+            .id(orderItem.getId())
+            .discount(orderItem.getDiscount())
+            .image(productVariant.getImage())
+            .orderId(orderItem.getOrderId())
+            .price(orderItem.getPrice())
+            .quantity(orderItem.getQuantity())
+            .productVariantName(prodcut.getName() + " - " + color + " - " + productVariant.getSize().toString())
+            .build();
     }
 
 }
