@@ -42,10 +42,10 @@ public class OrderController {
     @Autowired ColorService colorService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createNewOrder(@RequestBody CreateNewOrderRequest request) {
+    public ResponseEntity<?> createNewOrder(CreateNewOrderRequest request) {
         
         User user = authService.getAuthenticatedUser();
-        Order newOrder = orderService.createNewOrder(request.getCartItemIds(), user);
+        Order newOrder = orderService.createNewOrder(request.getCartItemIds(), request.getQuantities(), user);
         
         ApiResponse<CreateNewOrderResponse> response = ApiResponse.<CreateNewOrderResponse>builder()
             .code(200)
@@ -84,7 +84,7 @@ public class OrderController {
     }
     
     @GetMapping("/search")
-    public ResponseEntity<?> getOrderByStatus( @RequestParam(value = "page") Integer page,
+    public ResponseEntity<?> searchOrderByStatus( @RequestParam(value = "page") Integer page,
                                     @RequestParam(value = "status") String status) {
 
         Page<OrderDTO> data = orderService.findOrderByStatus(status, page-1);
@@ -97,7 +97,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     
-    @PutMapping("sending/{orderId}")
+    @PutMapping("set-sending/{orderId}")
     public ResponseEntity<?> comfirmSendingOrder(@PathVariable(name = "orderId") Integer orderid) {
         Order order = orderService.comfirmSendingOrder(orderid);
         

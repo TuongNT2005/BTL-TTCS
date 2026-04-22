@@ -11,12 +11,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.shop.entity.ProductVariant;
+import com.example.shop.enums.Size;
+
 import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Integer> {
         public Optional<ProductVariant> findByProductIdAndColorIdAndSize(Integer productId, Integer colorId,
-                        ProductVariant.Size size);
+                        Size size);
 
         @Query(value = "SELECT a.* FROM PRODUCTVARIANT a LEFT JOIN PRODUCT b ON a.productId = b.id WHERE b.NAME LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM PRODUCTVARIANT a LEFT JOIN PRODUCT b ON a.productId = b.id WHERE b.NAME LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
         Page<ProductVariant> findByKeyword(@Param("keyword") String keyword, Pageable pageable);

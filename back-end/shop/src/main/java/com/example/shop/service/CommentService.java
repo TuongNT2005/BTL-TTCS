@@ -16,10 +16,8 @@ public class CommentService {
 
     @Autowired private CommentRepository commentRepository;
 
-    public Comment createNewComment(CreateNewCommentRequest request) {
+    public Comment createNewComment(CreateNewCommentRequest request, Integer userId) {
         try {
-            
-        Integer userId = request.getUserId();
 
         Comment comment = Comment.builder()
             .createdAt(LocalDate.now())

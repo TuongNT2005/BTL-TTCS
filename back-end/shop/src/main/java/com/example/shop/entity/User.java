@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.shop.enums.UserEnum;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,10 +30,6 @@ import lombok.Setter;
 @Table(name = "user")
 @Builder
 public class User implements UserDetails {
-
-    public static enum UserEnum {
-        ADMIN, USER, ACTIVE, PENDING
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

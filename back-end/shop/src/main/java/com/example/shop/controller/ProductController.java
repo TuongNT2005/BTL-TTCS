@@ -48,21 +48,15 @@ public class ProductController {
         @GetMapping("/search")
         public ResponseEntity<?> searchProduct(
                         @RequestParam(name = "keyword") String keyword,
-                        @RequestParam(name = "page") Integer page) {
+                        @RequestParam(name = "page") Integer page,
+                        @RequestParam(name = "category") String category) {
 
                 Page<Product> res = productService.searchProduct(
-                                keyword,
+                                keyword, category,
                                 PageRequest.of(page - 1, ConstantVal.itemPerPage));
 
                 Page<ProductDTO> products = res.map(product -> {
-                        List<ProductVariant> productVariants = productService
-                                        .findAllProductVariantByProductId(product.getId());
-                        List<ProductVariantDTO> productVariantDTOs = new ArrayList<>();
-                        for (ProductVariant productVariant : productVariants) {
-                                productVariantDTOs.add(Converter.convertProductToProductVariantDTO(productVariant,
-                                                product, colorService, eventService));
-                        }
-                        return Converter.convertProductToProductDTO(product, productVariantDTOs);
+                        return productService.convertToProductDTO(product);
                 });
 
                 ApiResponse<Page<ProductDTO>> response = ApiResponse.<Page<ProductDTO>>builder()
@@ -118,8 +112,7 @@ public class ProductController {
                 List<ProductVariant> productVariants = productService.findAllProductVariantByProductId(product.getId());
                 List<ProductVariantDTO> productVariantDTOs = new ArrayList<>();
                 for (ProductVariant productVariant : productVariants) {
-                        productVariantDTOs.add(Converter.convertProductToProductVariantDTO(productVariant, product,
-                                        colorService, eventService));
+                        productVariantDTOs.add(productService.convertToProductVariantDTO(productVariant));
                 }
 
                 Map<String, Object> data = new TreeMap<String, Object>();
@@ -173,12 +166,10 @@ public class ProductController {
         public ResponseEntity<?> getProductVariantById(@PathVariable(name = "id") Integer id) {
 
                 ProductVariant productVariant = productService.findProductVariantById(id);
-                Product product = productService.findProductById(productVariant.getProductId());
                 ApiResponse<ProductVariantDTO> response = ApiResponse.<ProductVariantDTO>builder()
                                 .code(200)
                                 .message("Lấy dữ liệu thành công!")
-                                .data(Converter.convertProductToProductVariantDTO(productVariant, product, colorService,
-                                                eventService))
+                                .data(productService.convertToProductVariantDTO(productVariant))
                                 .build();
 
                 return ResponseEntity.status(HttpStatus.OK).body(response);

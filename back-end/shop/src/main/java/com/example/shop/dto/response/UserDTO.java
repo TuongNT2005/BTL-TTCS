@@ -19,4 +19,5 @@ public class UserDTO {
     private String avatar;
     private String status;
     private Long coin;
+    private String role;
 }

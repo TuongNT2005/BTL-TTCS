@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.example.shop.dto.request.ImportProductVariantRequest;
 import com.example.shop.entity.ImportHistory;
 import com.example.shop.entity.ProductVariant;
+import com.example.shop.enums.ProductVariantStatus;
+import com.example.shop.enums.Size;
 import com.example.shop.repository.ImportHistoryRepository;
 import com.example.shop.repository.ProductVariantRepository;
 
@@ -26,7 +28,7 @@ public class WareHouseService {
         Integer colorId = colorService.findColorId(request.getColor());
         try {
             Optional<ProductVariant> container = productVariantRepository.findByProductIdAndColorIdAndSize(
-                    request.getProductId(), colorId, ProductVariant.Size.valueOf(request.getSize()));
+                    request.getProductId(), colorId, Size.valueOf(request.getSize()));
 
             ProductVariant productVariant;
             if (container.isEmpty()) {
@@ -37,8 +39,8 @@ public class WareHouseService {
                         .importCost(request.getImportCost())
                         .purchasePrice((long) Math.floor((request.getImportCost() * 1.15) / 1000) * 1000l)
                         .quantity(request.getQuantity())
-                        .size(ProductVariant.Size.valueOf(request.getSize()))   
-                        .status(ProductVariant.Status.AVALIBLE)
+                        .size(Size.valueOf(request.getSize()))   
+                        .status(ProductVariantStatus.AVALIBLE)
                         .build();
             }
 
@@ -54,7 +56,7 @@ public class WareHouseService {
             productVariantRepository.save(productVariant);
 
             Integer productVariantId = productVariantRepository.findByProductIdAndColorIdAndSize(
-                    request.getProductId(), colorId, ProductVariant.Size.valueOf(request.getSize()))
+                    request.getProductId(), colorId, Size.valueOf(request.getSize()))
                     .get().getId();
             ImportHistory importHistory = ImportHistory.builder()
                     .importAt(LocalDateTime.now())

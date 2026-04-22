@@ -1,5 +1,6 @@
 package com.example.shop.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,14 +12,15 @@ import org.springframework.stereotype.Service;
 import com.example.shop.dto.request.CreateProductRequest;
 import com.example.shop.dto.request.EditProductVariantRequest;
 import com.example.shop.dto.request.UpdateProductRequest;
-import com.example.shop.entity.OrderItem;
+import com.example.shop.dto.response.ProductDTO;
+import com.example.shop.dto.response.ProductVariantDTO;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
+import com.example.shop.enums.ProductVariantStatus;
 import com.example.shop.exception.DuplicatedItemException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.exception.ProductUnavlibleExeption;
 import com.example.shop.exception.QuantityNotEnoughException;
-import com.example.shop.repository.OrderItemRepository;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import com.example.shop.util.FileUtil;
@@ -31,14 +33,16 @@ public class ProductService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
     @Autowired
-    private OrderItemRepository orderItemRepository;
+    private ColorService colorService;
+    @Autowired
+    private EventService eventService;
 
     public List<Product> searchProduct(String keyword) {
         return productRepository.findByKeyword(keyword);
     }
 
-    public Page<Product> searchProduct(String keyword, Pageable pageable) {
-        return productRepository.findByKeyword(keyword, pageable);
+    public Page<Product> searchProduct(String keyword,  String category, Pageable pageable) {
+        return productRepository.findByKeyword(keyword, category, pageable);
     }
 
     public Page<ProductVariant> getAllProductVariant(String keyword, Pageable pageable) {
@@ -63,7 +67,7 @@ public class ProductService {
 
     public void checkProductVariantStatus(Integer productVariantId) {
         ProductVariant productVariant = findProductVariantById(productVariantId);
-        if (productVariant.getStatus() != ProductVariant.Status.AVALIBLE) {
+        if (productVariant.getStatus() != ProductVariantStatus.AVALIBLE) {
             throw new ProductUnavlibleExeption(
                     String.format("Biến thể với id=%d đang không được bán trên cửa hàng!", productVariantId));
         }
@@ -149,7 +153,7 @@ public class ProductService {
                 productVariant.setImage(fileName);
             }
             productVariant.setPurchasePrice(request.getPurchasePrice());
-            productVariant.setStatus(ProductVariant.Status.valueOf(request.getStatus()));
+            productVariant.setStatus(ProductVariantStatus.valueOf(request.getStatus()));
             productVariantRepository.save(productVariant);
             return productVariant;
         } catch (Exception e) {
@@ -169,12 +173,12 @@ public class ProductService {
 
     public Product findByOrderItemId(Integer orderItemId) {
         return productRepository.findByOrderItemId(orderItemId)
-            .orElseThrow(() -> new NotFoundException("Không tìm được biens thể!"));
+                .orElseThrow(() -> new NotFoundException("Không tìm được biens thể!"));
     }
 
     public ProductVariant findProductVariantByOrderItemId(Integer orderItemId) {
         return productVariantRepository.findByOrderitemId(orderItemId)
-            .orElseThrow(() -> new NotFoundException("Không tìm được biens thể!"));
+                .orElseThrow(() -> new NotFoundException("Không tìm được biens thể!"));
     }
 
     public List<ProductVariant> findAllProductVariantByProductId(Integer productId) {
@@ -184,5 +188,40 @@ public class ProductService {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public ProductVariant saveProductVariant(ProductVariant productVariant) {
+        try {
+            productVariantRepository.save(productVariant);
+            return productVariant;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public ProductVariantDTO convertToProductVariantDTO(ProductVariant productVariant) {
+        Product product = findProductById(productVariant.getProductId());
+        String colorName = colorService.findColorNameById(productVariant.getColorId());
+        Integer discount = eventService.findDiscounts(product.getId());
+        return new ProductVariantDTO(productVariant, product.getName(), colorName, discount);
+    }
+
+    public ProductDTO convertToProductDTO(Product product) {
+
+        List<ProductVariant> productVariants = findAllProductVariantByProductId(product.getId());
+        List<ProductVariantDTO> productVariantDTOs = new ArrayList<>();
+        
+        for(ProductVariant productVariant : productVariants) {
+            productVariantDTOs.add(convertToProductVariantDTO(productVariant));
+        }
+
+        return ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .image(product.getImage())
+                .category(product.getCategory().toString())
+                .productVariants(productVariantDTOs)
+                .build();
     }
 }

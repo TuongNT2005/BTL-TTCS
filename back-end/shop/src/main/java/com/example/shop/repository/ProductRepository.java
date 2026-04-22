@@ -19,10 +19,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     public List<Product> findByKeyword(@Param("keyword") String keyword);
 
     @Query(
-        value = "SELECT * FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%')", 
-        countQuery = "SELECT COUNT(*) FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%')",
+        value = "SELECT * FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%') AND (:category IS NULL OR :category = '' OR CATEGORY = :category)", 
+        countQuery = "SELECT COUNT(*) FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%') AND (:category = '' OR CATEGORY = :category)",
         nativeQuery = true)
-    public Page<Product> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
+    public Page<Product> findByKeyword(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
     public Optional<Product> findByNameIgnoreCaseAndCategory(String name, Product.Category category);
     

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.shop.dto.request.CreateUserRequest;
 import com.example.shop.dto.response.CreateUserResponse;
+import com.example.shop.dto.response.UserDTO;
 import com.example.shop.entity.User;
+import com.example.shop.enums.UserEnum;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.UserRepository;
 import com.example.shop.util.ConstantVal;
@@ -39,13 +41,13 @@ public class UserService {
             User user = User.builder()
                     .username(request.getUsername())
                     .password(passwordEncoder.encode(request.getPassword()))
-                    .role(User.UserEnum.USER)
+                    .role(UserEnum.USER)
                     .address("123")
                     .avatar("aaa")
                     .coin(0l)
                     .email("useremail" + System.currentTimeMillis() + "@gmail.com")
                     .phone("0000000")
-                    .status(User.UserEnum.ACTIVE)
+                    .status(UserEnum.ACTIVE)
                     .build();
             userRepository.save(user);
 
@@ -66,4 +68,28 @@ public class UserService {
             .orElseThrow(() -> new NotFoundException(String.format("Người dùng với id=%d không tồn tại!", userId)));
     }
     
+
+    public User saveUser(User user) {
+        try {
+            userRepository.save(user);
+            return user;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public UserDTO convertToUserDTO(User user) {
+        return UserDTO.builder()
+            .id(user.getId())           
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .address(user.getAddress())
+            .coin(user.getCoin())
+            .status(user.getStatus().toString())
+            .role(user.getRole().toString())
+            .build();
+    }
+
 }

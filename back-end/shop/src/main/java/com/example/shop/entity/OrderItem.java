@@ -1,5 +1,7 @@
-package com.example.shop.entity;
+    package com.example.shop.entity;
 
+
+import com.example.shop.enums.Returned;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,10 +26,6 @@ import lombok.Setter;
 @Table(name = "orderitem")
 public class OrderItem {
 
-    public static enum Returned {
-        TRUE, FALSE, PENDING
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -44,7 +42,7 @@ public class OrderItem {
 
     @Column(name = "quantity")
     private Integer quantity;
-
+    
     @Column(name = "price")
     private Long price;
 

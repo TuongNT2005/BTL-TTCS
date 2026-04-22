@@ -31,7 +31,7 @@ public class VnpayPaymentService {
     public VnPayParameters getParameters(Integer orderId) {
         orderService.findOrderById(orderId);
         orderService.checkOrderExpiration(orderId);
-        orderService.checkOrderPendingStatus(orderId);
+        orderService.checkIsPendingOrder(orderId);
 
         return VnPayParameters.builder()
                 .vnp_Amount(String.valueOf(orderService.calTotalPriceByOrderId(orderId)))

@@ -14,6 +14,7 @@ import com.example.shop.dto.request.HandleRefundRequest;
 import com.example.shop.entity.OrderItem;
 import com.example.shop.entity.RefundRequest;
 import com.example.shop.entity.User;
+import com.example.shop.enums.Returned;
 import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.RefundRequestRepository;
@@ -38,7 +39,7 @@ public class RefundService {
 
     public RefundRequest createNewRefundRequest(CreateRefundRequest request) {
         OrderItem orderItem = orderService.findOrderItemById(request.getOrderItemId());
-        if (orderItem.getReturned() != OrderItem.Returned.FALSE) {
+        if (orderItem.getReturned() != Returned.FALSE) {
             throw new ActionUnavalibleException(
                     String.format("KHông thể yêu cầu hoàn tiền sản phẩm này vì trạng thái của sản phẩm đang là: %s",
                             orderItem.getReturned().toString()));
@@ -54,7 +55,7 @@ public class RefundService {
                     .userId(authService.getAuthenticatedUserId())
                     .build();
 
-            orderItem.setReturned(OrderItem.Returned.PENDING);
+            orderItem.setReturned(Returned.PENDING);
             refundRequestRepository.save(refundRequest);
             orderItemRepository.save(orderItem);
 
@@ -87,12 +88,12 @@ public class RefundService {
         OrderItem orderItem = orderService.findOrderItemById(refundRequest.getOrderItemId());
         try {
             refundRequest.setStatus(RefundRequest.Status.DONE);
-            orderItem.setReturned(OrderItem.Returned.TRUE);
+            orderItem.setReturned(Returned.TRUE);
             user.setCoin(user.getCoin() + orderItem.getPrice());
 
             refundRequestRepository.save(refundRequest);
             orderItemRepository.save(orderItem);
-            userRepository.save(user);
+            userService.saveUser(user);
 
             return refundRequest;
         } catch (Exception e) {
@@ -110,10 +111,10 @@ public class RefundService {
             refundRequest.setStatus(RefundRequest.Status.valueOf(request.getStatus()));
             OrderItem orderItem = orderService.findOrderItemById(refundRequest.getOrderItemId());
             if (refundRequest.getStatus() == RefundRequest.Status.REJECTED) {
-                orderItem.setReturned(OrderItem.Returned.FALSE);
+                orderItem.setReturned(Returned.FALSE);
             }
             else {
-                orderItem.setReturned(OrderItem.Returned.PENDING);
+                orderItem.setReturned(Returned.PENDING);
             }
 
             orderItemRepository.save(orderItem);

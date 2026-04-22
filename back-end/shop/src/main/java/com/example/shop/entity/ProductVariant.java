@@ -1,5 +1,8 @@
 package com.example.shop.entity;
 
+import com.example.shop.enums.ProductVariantStatus;
+import com.example.shop.enums.Size;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,15 +26,6 @@ import lombok.Setter;
 @Builder
 @Table(name = "productvariant")
 public class ProductVariant {
-    
-    public static enum Size {
-        S, M, L , XL, XXL, XXXL
-    }
-
-    public static enum Status {
-        COMING, AVALIBLE, UNAVALIBLE
-    }
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +39,7 @@ public class ProductVariant {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "size")
-    private Size size;
+    private Size     size;
 
     @Column(name = "importcost")
     private Long importCost;
@@ -55,7 +49,7 @@ public class ProductVariant {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private Status status;
+    private ProductVariantStatus status;
 
     @Column(name = "quantity")
     private Integer quantity;

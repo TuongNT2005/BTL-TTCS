@@ -78,7 +78,7 @@ public class RefundController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchRefundRequest(@RequestParam(name = "status") String status,
+    public ResponseEntity<?> searchRefundRequestByStatus(@RequestParam(name = "status") String status,
             @RequestParam(name = "page") Integer page,
             @RequestParam(name = "keyword") String keyword) {
 

@@ -2,6 +2,8 @@ package com.example.shop.entity;
 
 import java.time.LocalDateTime;
 
+import com.example.shop.enums.OrderStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,10 +26,6 @@ import lombok.Setter;
 @Builder
 @Table(name = "orders")
 public class Order {
-
-    public static enum Status {
-        PENDING, PAID, CANCEL, EXPRIED, DELIVERIED
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,7 +51,7 @@ public class Order {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private OrderStatus status;
 
     @Column(name = "coinused")
     private Long coinUsed;

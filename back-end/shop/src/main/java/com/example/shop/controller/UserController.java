@@ -29,7 +29,7 @@ public class UserController {
             @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "page") Integer page) {
         Page<User> users = userService.searchlUser(page - 1, keyword);
-        Page<UserDTO> data = users.map(user -> Converter.convertUserToUserDTO(user));
+        Page<UserDTO> data = users.map(user -> userService.convertToUserDTO(user));
 
         ApiResponse<Page<UserDTO>> response = ApiResponse.<Page<UserDTO>>builder()
                 .code(200)
@@ -52,7 +52,7 @@ public class UserController {
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code(200)
                 .message("Tìm kiếm user thành công!")
-                .data(Converter.convertUserToUserDTO(user))
+                .data(userService.convertToUserDTO(user))
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

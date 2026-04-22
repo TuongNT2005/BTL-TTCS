@@ -52,7 +52,7 @@ public class PaymentController {
     @GetMapping("/handle-result")
     public ResponseEntity<?> handleResult(HttpServletRequest request) throws UnsupportedEncodingException {
         Map<String, String> paymentResult = vnpayPaymentService.getResult(request);
-        Order order = orderService.setOrderPaidStatus(paymentResult);
+        Order order = orderService.comfirmPurchasedOrder(paymentResult);
 
         PaymentResponse paymentResponse = PaymentResponse.builder()
                 .orderId(paymentResult.get("vnp_TxnRef"))

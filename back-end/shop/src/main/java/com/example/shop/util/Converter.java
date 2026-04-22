@@ -91,18 +91,6 @@ public class Converter {
             .build();
     }
 
-    public static UserDTO convertUserToUserDTO(User user) {
-        return UserDTO.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .phone(user.getPhone())
-            .address(user.getAddress())
-            .coin(user.getCoin())
-            .status(user.getStatus().toString())
-            .build();
-    }
-
     public static EventDTO convertEventToEventDTO(Event event) {
         return EventDTO.builder()
             .id(event.getId())
@@ -127,16 +115,5 @@ public class Converter {
             .build();
     }
 
-    public static OrderItemDTO convertOrderItemToOrderItemDTO(OrderItem orderItem, Product prodcut, String color, ProductVariant productVariant) {
-        return OrderItemDTO.builder()
-            .id(orderItem.getId())
-            .discount(orderItem.getDiscount())
-            .image(productVariant.getImage())
-            .orderId(orderItem.getOrderId())
-            .price(orderItem.getPrice())
-            .quantity(orderItem.getQuantity())
-            .productVariantName(prodcut.getName() + " - " + color + " - " + productVariant.getSize().toString())
-            .build();
-    }
 
 }

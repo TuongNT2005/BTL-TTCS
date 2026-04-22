@@ -1,6 +1,6 @@
-package com.example.shop.dto.request;
+package com.example.shop.dto.response;
 
-import java.util.List;
+import com.example.shop.entity.CartItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateNewOrderRequest {
-    private List<Integer> cartItemIds;
-    private List<Integer> quantities;
+public class CartItemDTO {
+    private CartItem cartItem;
+    private ProductVariantDTO productVariantDTO;
 }
