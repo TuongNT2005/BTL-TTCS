@@ -1,11 +1,9 @@
 import RegistrationForm from "../../organism/RegistrationForm/RegistrationForm"
 import { cn } from "../../../util"
-import Notifier from "../../organism/Notifier/Notifier";
 
 export default function RegistrationPage() {
 
     return <>
-        <Notifier></Notifier>
         <div style={{ backgroundImage: "url(https://cdn.create.vista.com/api/media/small/760044708/stock-photo-purple-mountain-landscape-wallpaper-minimalist-flat-design-style)" }}
             className={cn("w-full h-screen",
                 "bg-no-repeat bg-cover",

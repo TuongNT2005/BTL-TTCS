@@ -14,7 +14,7 @@ import NotFoundData from "../../Global/NotFoundData/NotFoundData"
 export default function EventCreateForm() {
 
     const { isCreateFormOpen, setIsCreateFormOpen, setRefreshKey, productList } = useContext(EventSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
     const [discountedProductIds, setDiscountedProductIds] = useState([]);
     const [importedProductIds, setImportedProductIds] = useState({});
 

@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EditProductVariantRequest {
+public class UpdateProductVariantRequest {
     private Integer id;
     private MultipartFile img;
     private Long purchasePrice;

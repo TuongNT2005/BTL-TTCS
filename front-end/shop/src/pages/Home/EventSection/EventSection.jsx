@@ -18,7 +18,8 @@ export default function EventSection() {
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, eventId: 1 });
     const [productDetailFormState, setProductDetailFormState] = useState({ isDetailFormOpen: false, eventId: 1 });
     const [events, setEvents] = useState([]);
-    const { token, isLoading, setIsLoading } = useContext(AppContext);
+    const { token} = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
 
     function onOpenDetailForm(e) {
         const eventId = e.target.parentElement.id;

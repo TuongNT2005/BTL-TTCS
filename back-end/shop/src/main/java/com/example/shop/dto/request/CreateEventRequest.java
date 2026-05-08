@@ -1,6 +1,5 @@
 package com.example.shop.dto.request;
 
-import java.time.LocalDate;
 
 import org.springframework.web.multipart.MultipartFile;
 

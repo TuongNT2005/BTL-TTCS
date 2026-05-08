@@ -13,14 +13,12 @@ import ProductDetailForm from "../ProductDetailForm/ProductDetailForm";
 
 export default function HotProductSection() {
 
-    console.log("Các sản phẩm hot được render!");
-
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, eventId: 1 });
     const [hotProducts, setHotProducts] = useState([]);
-    const { token, isLoading, setIsLoading } = useContext(AppContext);
+    const { token} = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
 
     function onOpenDetailForm(e) {
-        console.log("Tôi mở form này nè!");
         const productId = e.target.parentElement.id;
         setDetailFormState({ isDetailFormOpen: true, productId: productId });
     }

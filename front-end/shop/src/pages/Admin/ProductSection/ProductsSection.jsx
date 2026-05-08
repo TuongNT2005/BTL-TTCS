@@ -17,7 +17,8 @@ import ProductCreateForm from "./ProductCreateFrom";
 
 export default function ProductsSection({ keyword }) {
 
-    const { token, isLoading, setIsLoading } = useContext(AppContext);
+    const { token} = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
     const [editFormState, setEditFormState] = useState({ isEditFormOpen: false, productId: 1 });
     const [refreshKey, setRefreshKey] = useState("");
@@ -58,7 +59,7 @@ export default function ProductsSection({ keyword }) {
     const searchData = useCallback(async function () {
         try {
             setIsLoading(true);
-            const res = await fetchApiFunc("", `${api.admin.productTab.searchProduct}?keyword=${keyword}&page=${curPage}`, "GET", token);
+            const res = await fetchApiFunc("", `${api.admin.productTab.searchProduct}?keyword=${keyword}&page=${curPage}&category=`, "GET", token);
             console.log(res);
             setProducts(res.data.content);
             return res;
@@ -79,7 +80,7 @@ export default function ProductsSection({ keyword }) {
         fetchData();
     }, [searchData, refreshKey])
 
-    return <ProductSectionContext.Provider value={{ ...editFormState, setEditFormState, setRefreshKey, isCreateFormOpen, setIsCreateFormOpen }}>
+    return <ProductSectionContext.Provider value={{ ...editFormState, setEditFormState, refreshKey, setRefreshKey, isCreateFormOpen, setIsCreateFormOpen }}>
         <>
             {
                 editFormState.isEditFormOpen ? <ProductEditForm></ProductEditForm> :

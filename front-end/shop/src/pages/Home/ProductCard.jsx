@@ -1,8 +1,8 @@
-import { getImgPath } from "../../util";
+import { getImgPath, cn } from "../../util";
 
-export default function ProductCard({ item, productId, onClickFunc }) {
+export default function ProductCard({ item, productId, onClickFunc, className="" }) {
   return (
-    <div className="group overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl min-w-40 md:min-w-xs flex flex-col justify-betweenx">
+    <div className={cn("group overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl min-w-40 md:min-w-xs flex flex-col justify-betweenx", className)}>
       <div className="aspect-[3/4] overflow-hidden bg-slate-100">
         <img
           src={getImgPath(item.image)}

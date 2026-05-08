@@ -10,17 +10,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.shop.dto.request.CreateProductRequest;
-import com.example.shop.dto.request.EditProductVariantRequest;
+
 import com.example.shop.dto.request.UpdateProductRequest;
+import com.example.shop.dto.request.UpdateProductVariantRequest;
 import com.example.shop.dto.response.ProductDTO;
 import com.example.shop.dto.response.ProductVariantDTO;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
+import com.example.shop.enums.Category;
 import com.example.shop.enums.ProductVariantStatus;
-import com.example.shop.exception.DuplicatedItemException;
+import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.exception.NotFoundException;
-import com.example.shop.exception.ProductUnavlibleExeption;
-import com.example.shop.exception.QuantityNotEnoughException;
 import com.example.shop.repository.ProductRepository;
 import com.example.shop.repository.ProductVariantRepository;
 import com.example.shop.util.FileUtil;
@@ -68,7 +68,7 @@ public class ProductService {
     public void checkProductVariantStatus(Integer productVariantId) {
         ProductVariant productVariant = findProductVariantById(productVariantId);
         if (productVariant.getStatus() != ProductVariantStatus.AVALIBLE) {
-            throw new ProductUnavlibleExeption(
+            throw new ActionUnavalibleException(
                     String.format("Biến thể với id=%d đang không được bán trên cửa hàng!", productVariantId));
         }
     }
@@ -76,25 +76,25 @@ public class ProductService {
     public void checkQuantity(Integer productVariantId, Integer quantity) {
         ProductVariant productVariant = findProductVariantById(productVariantId);
         if (productVariant.getQuantity() < quantity) {
-            throw new QuantityNotEnoughException(
+            throw new ActionUnavalibleException(
                     String.format("ProductVariant với id = %d không đủ số lượng!", productVariantId));
         }
     }
 
     public void checkDuplicateProduct(String name, String category, Integer id) {
         Optional<Product> product = productRepository.findByNameIgnoreCaseAndCategory(name,
-                Product.Category.valueOf(category));
+                Category.valueOf(category));
         if (product.isPresent() && product.get().getId() != id) {
-            throw new DuplicatedItemException(
+            throw new ActionUnavalibleException(
                     String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category));
         }
     }
 
     public void checkDuplicateProduct(String name, String category) {
         Optional<Product> product = productRepository.findByNameIgnoreCaseAndCategory(name,
-                Product.Category.valueOf(category));
+                Category.valueOf(category));
         if (product.isPresent()) {
-            throw new DuplicatedItemException(
+            throw new ActionUnavalibleException(
                     String.format("Đã tồn tại sản phẩm có tên: %s và thể loại: %s", name, category));
         }
     }
@@ -105,7 +105,7 @@ public class ProductService {
         try {
             String imgName = FileUtil.saveFileToDir(request.getImg(), "product", FileUtil.genFileName("product_"));
             Product product = Product.builder()
-                    .category(Product.Category.valueOf(request.getCategory()))
+                    .category(Category.valueOf(request.getCategory()))
                     .description(request.getDescription())
                     .image(imgName)
                     .name(request.getName())
@@ -130,7 +130,7 @@ public class ProductService {
                 product.setImage(fileName);
             }
 
-            product.setCategory(Product.Category.valueOf(request.getCategory()));
+            product.setCategory(Category.valueOf(request.getCategory()));
             product.setName(request.getName());
             product.setDescription(request.getDescription());
 
@@ -143,7 +143,7 @@ public class ProductService {
         }
     }
 
-    public ProductVariant updateProductVariantById(EditProductVariantRequest request) {
+    public ProductVariant updateProductVariant(UpdateProductVariantRequest request) {
         try {
             ProductVariant productVariant = findProductVariantById(request.getId());
             if (FileUtil.isFilePresent(request.getImg())) {

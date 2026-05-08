@@ -17,4 +17,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         countQuery = "SELECT COUNT(*) FROM ORDERS WHERE (:status IS NULL OR :status = '' OR STATUS like CONCAT('%', :status, '%'))"
     )
     public Page<Order> findAllByStatus(Pageable page, @Param(value = "status") String status);
+
+    public Page<Order> findAllByUserId(Pageable page, Integer userId);
 }

@@ -17,7 +17,8 @@ export default function UsersSection({ keyword }) {
     const [detailFormState, setDetailFormState] = useState({isDetailFormOpen: false, userId: 1});
     const [curPage, setCurPage] = useState(1);
     const [totalPage, setTotalPage] = useState(100);
-    const { token, isLoading, setIsLoading } = useContext(AppContext);
+    const { token} = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
     const [users, setUsers] = useState([
         { id: 1, username: "Tường Ng", email: "abc@gmail.com", coin: 100000, status: "ACTIVE" },
         { id: 2, username: "Cao Phạm", email: "caong123@gmail.com", coin: 0, status: "PENDING" },
@@ -75,9 +76,9 @@ export default function UsersSection({ keyword }) {
             {detailFormState.isDetailFormOpen ? <UserDetailForm></UserDetailForm> : <></>}
             {
                 !detailFormState.isDetailFormOpen && isLoading ? <Loading></Loading> :
-                    <div className="space-y-6">
-                        <Card title="Người dùng">
-                            <Table
+                    <div className="space-y-6 h-full">
+                        <Card className="h-full flex flex-col justify-between" title="Người dùng">
+                            <Table className={"overflow-scroll flex-1 w-full hide-scrollbar"}
                                 columns={["ID", "Username", "Email", "Coin", "Trạng thái", "Hành động"]}
                                 rows={users.map((u) => (
                                     <tr key={u.id}>

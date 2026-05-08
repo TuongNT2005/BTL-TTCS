@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.shop.entity.Product;
+import com.example.shop.enums.Category;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -24,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
         nativeQuery = true)
     public Page<Product> findByKeyword(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
-    public Optional<Product> findByNameIgnoreCaseAndCategory(String name, Product.Category category);
+    public Optional<Product> findByNameIgnoreCaseAndCategory(String name, Category category);
     
     @Query(value = "select productId from product_event where eventId=:eventId", nativeQuery = true)
     public List<Integer> findAllProductIdByEventId(@Param("eventId") Integer eventId);

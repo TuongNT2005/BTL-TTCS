@@ -1,7 +1,5 @@
 package com.example.shop.service;
 
-import com.example.shop.repository.OrderItemRepository;
-import com.example.shop.repository.UserRepository;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +8,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.shop.dto.request.CreateRefundRequest;
-import com.example.shop.dto.request.HandleRefundRequest;
+import com.example.shop.dto.request.HandleRefundRequest;        
+import com.example.shop.dto.response.ProductVariantDTO;
+import com.example.shop.dto.response.RefundRequestDTO;
 import com.example.shop.entity.OrderItem;
+import com.example.shop.entity.ProductVariant;
 import com.example.shop.entity.RefundRequest;
 import com.example.shop.entity.User;
-import com.example.shop.enums.Returned;
+import com.example.shop.enums.RefundStatus;
 import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.RefundRequestRepository;
@@ -27,23 +28,47 @@ public class RefundService {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private AuthService authService;
-    @Autowired
     private RefundRequestRepository refundRequestRepository;
     @Autowired
     private UserService userService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private ProductService productService;
 
-    public RefundRequest createNewRefundRequest(CreateRefundRequest request) {
-        OrderItem orderItem = orderService.findOrderItemById(request.getOrderItemId());
-        if (orderItem.getReturned() != Returned.FALSE) {
-            throw new ActionUnavalibleException(
-                    String.format("KHông thể yêu cầu hoàn tiền sản phẩm này vì trạng thái của sản phẩm đang là: %s",
-                            orderItem.getReturned().toString()));
+    public RefundRequestDTO convertToRefundRequestDTO(RefundRequest refundRequest) {
+
+        User user = userService.findUserById(refundRequest.getUserId());
+        ProductVariant productVariant = productService.findProductVariantByOrderItemId(refundRequest.getOrderItemId());
+        ProductVariantDTO productVariantDTO = productService.convertToProductVariantDTO(productVariant);
+
+        return RefundRequestDTO.builder()
+                .id(refundRequest.getId())
+                .username(user.getUsername())
+                .productName(productVariantDTO.getName())
+                .image(refundRequest.getImage())
+                .reason(refundRequest.getReason())
+                .status(refundRequest.getStatus().toString())
+                .createdAt(refundRequest.getCreatedAt().toString())
+                .build();
+    }
+
+    public void checkCreateRefundRequestConditions(CreateRefundRequest request) {
+        try {
+            OrderItem item = orderService.findOrderItemById(request.getOrderItemId());
+            Integer quantityOfReturnedItem = refundRequestRepository.getReturnedItemQuantityByOrderItemId(item.getId());
+            if (request.getQuantity() <= 0) {
+                throw new ActionUnavalibleException("Số lượng cần hoàn trả không được nhỏ hơn = 0!");
+            } else if (request.getQuantity() + quantityOfReturnedItem > item.getQuantity()) {
+                throw new ActionUnavalibleException(String.format("Bạn chỉ có thể yêu cầu hoàn trả tối đa %d sản phẩm!",
+                        item.getQuantity() - quantityOfReturnedItem));
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public RefundRequest createNewRefundRequest(CreateRefundRequest request, User user) {
+        checkCreateRefundRequestConditions(request);
         try {
             String imgName = FileUtil.saveFileToDir(request.getImg(), "refund", FileUtil.genFileName("refund_"));
             RefundRequest refundRequest = RefundRequest.builder()
@@ -51,13 +76,12 @@ public class RefundService {
                     .image(imgName)
                     .orderItemId(request.getOrderItemId())
                     .reason(request.getReason())
-                    .status(RefundRequest.Status.PENDING)
-                    .userId(authService.getAuthenticatedUserId())
+                    .status(RefundStatus.PENDING)
+                    .userId(user.getId())
+                    .quantity(request.getQuantity())
                     .build();
 
-            orderItem.setReturned(Returned.PENDING);
             refundRequestRepository.save(refundRequest);
-            orderItemRepository.save(orderItem);
 
             return refundRequest;
         } catch (Exception e) {
@@ -74,7 +98,7 @@ public class RefundService {
 
     public RefundRequest checkRefundCoinCondition(Integer refundRequestId) {
         RefundRequest refundRequest = findByRefundRequestId(refundRequestId);
-        if (refundRequest.getStatus() != RefundRequest.Status.ACCEPTED) {
+        if (refundRequest.getStatus() != RefundStatus.ACCEPTED) {
             throw new ActionUnavalibleException(String.format(
                     "Không thể thực hiện hoàn coin vì trạng thái của yêu cầu hoàn tiền, hoàn hàng đang là: %s",
                     refundRequest.getStatus().toString()));
@@ -87,12 +111,10 @@ public class RefundService {
         User user = userService.findUserById(refundRequest.getUserId());
         OrderItem orderItem = orderService.findOrderItemById(refundRequest.getOrderItemId());
         try {
-            refundRequest.setStatus(RefundRequest.Status.DONE);
-            orderItem.setReturned(Returned.TRUE);
+            refundRequest.setStatus(RefundStatus.DONE);
             user.setCoin(user.getCoin() + orderItem.getPrice());
 
             refundRequestRepository.save(refundRequest);
-            orderItemRepository.save(orderItem);
             userService.saveUser(user);
 
             return refundRequest;
@@ -103,21 +125,16 @@ public class RefundService {
     }
 
     public RefundRequest handleRefundRequest(HandleRefundRequest request) {
-        if(!isStatusValid(request.getStatus())) {
+        if (!isStatusValid(request.getStatus())) {
             throw new ActionUnavalibleException("Không thể thực hiện do trạng thái không hợp lệ!");
         }
-        RefundRequest refundRequest = findByRefundRequestId(request.getRefundRequestId());
+        
         try {
-            refundRequest.setStatus(RefundRequest.Status.valueOf(request.getStatus()));
-            OrderItem orderItem = orderService.findOrderItemById(refundRequest.getOrderItemId());
-            if (refundRequest.getStatus() == RefundRequest.Status.REJECTED) {
-                orderItem.setReturned(Returned.FALSE);
+            RefundRequest refundRequest = findByRefundRequestId(request.getRefundRequestId());
+            if(refundRequest.getStatus() != RefundStatus.PENDING) {
+                throw new ActionUnavalibleException("Không thể thực hiện do trạng thái khác PENDING");
             }
-            else {
-                orderItem.setReturned(Returned.PENDING);
-            }
-
-            orderItemRepository.save(orderItem);
+            refundRequest.setStatus(RefundStatus.valueOf(request.getStatus()));
             refundRequestRepository.save(refundRequest);
             return findByRefundRequestId(refundRequest.getId());
         } catch (Exception e) {
@@ -140,11 +157,12 @@ public class RefundService {
     public Page<RefundRequest> searchRefundRequest(Integer pageNumber, String status, String keyword) {
         try {
             if (!isStatusValid(status)) {
-                if(status != null && !status.trim().equals("")) {
+                if (status != null && !status.trim().equals("")) {
                     throw new ActionUnavalibleException("Không thể thực hiện do trạng thái không hợp lệ!");
-                } 
+                }
             }
-            return refundRequestRepository.searchRefundRequest(PageRequest.of(pageNumber, ConstantVal.itemPerPage), status, keyword);
+            return refundRequestRepository.searchRefundRequest(PageRequest.of(pageNumber, ConstantVal.itemPerPage),
+                    status, keyword);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());

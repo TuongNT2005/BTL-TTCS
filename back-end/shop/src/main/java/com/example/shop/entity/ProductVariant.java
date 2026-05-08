@@ -39,7 +39,7 @@ public class ProductVariant {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "size")
-    private Size     size;
+    private Size size;
 
     @Column(name = "importcost")
     private Long importCost;

@@ -12,13 +12,13 @@ import WareHouseSectionContext from "./WareHouseSectionContext"
 export default function ProductVariantEditForm() {
 
 
-    const { isEditFormOpen, productVariantId, setEditFormState, setRefreshKey } = useContext(WareHouseSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
+    const { isEditFormOpen, productVariantId, setEditFormState, refreshKey, setRefreshKey } = useContext(WareHouseSectionContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function handleChangeImage(e) {
         let file = e.target.files[0];
@@ -88,7 +88,7 @@ export default function ProductVariantEditForm() {
     }
 
     useEffect(() => {
-        setNotifierData({ isError: false, title: "", message: "", isOpen: false });
+        // setNotifierData({ isError: false, title: "", message: "", isOpen: false });
 
         if (ref.current === null) return;
 
@@ -127,7 +127,7 @@ export default function ProductVariantEditForm() {
             setFormData(null);
             setImage(null);
         }
-    }, [isEditFormOpen, productVariantId, token, setNotifierData, setIsLoading]);
+    }, [isEditFormOpen, productVariantId, token, setNotifierData, setIsLoading, refreshKey]);
 
     return <dialog ref={ref} className="m-auto h-max p-2 md:p-5 relative bg-white text-black rounded-2xl shadow-sm">
 

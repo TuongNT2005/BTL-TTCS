@@ -11,7 +11,7 @@ export default function Badge({ value }) {
         DONE: "bg-violet-100 text-violet-700",
         REJECTED: "bg-rose-100 text-rose-700",
         UNAVALIBLE: "bg-red-100 text-red-700",
-        PAID: "bg-blue-100 text-blue-700",
+        PAID: "bg-green-100 text-green-700",
         CANCEL: "bg-orange-100 text-orange-700",
         EXPRIED: "bg-red-100 text-red-700",
         DELIVERIED: "bg-green-100 text-green-700",

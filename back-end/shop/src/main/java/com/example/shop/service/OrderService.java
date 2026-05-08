@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.example.shop.dto.request.UpdateOrderInforRequest;
 import com.example.shop.dto.response.OrderDTO;
 import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.CartItem;
@@ -145,6 +146,18 @@ public class OrderService {
         }
     }
 
+    public Page<OrderDTO> findAllOrdersByUser(User user, Integer page) {
+        try {
+             Page<Order> orders = orderRepository.findAllByUserId(PageRequest.of(page, ConstantVal.itemPerPage) ,user.getId());
+             return orders.map(order -> convertToOrderDTO(order));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+       
+
+    }
+
     // Tìm kiếm đơn hàng theo id
     public Order findOrderById(Integer orderId) {
         return orderRepository.findById(orderId)
@@ -220,9 +233,6 @@ public class OrderService {
         Integer orderId = Integer.valueOf(paymentResult.get("vnp_TxnRef"));
         Order order = findOrderById(orderId);
 
-        checkOrderExpiration(orderId);
-        checkIsPendingOrder(orderId);
-
         try {
             if (paymentResult.get("vnp_TransactionStatus").equals("00") &&
                     paymentResult.get("vnp_TransactionStatus").equals("00")) {
@@ -279,6 +289,41 @@ public class OrderService {
             order.setStatus(OrderStatus.valueOf("DELIVERIED"));
             orderRepository.save(order);
             return order;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Order updateOrderInfor(UpdateOrderInforRequest request, User user) {
+        Order order = findOrderById(request.getId());
+        checkIsPendingOrder(request.getId());
+        checkOrderExpiration(request.getId());
+
+        try {
+
+            if(request.getUsedCoin()==null || request.getAddress()==null || request.getAddress().trim().equals("") || request.getPhone()==null || request.getPhone().trim().equals("")) {
+                throw new ActionUnavalibleException("Thông tin không đầy đủ!");
+            }
+
+            if(request.getUsedCoin() > user.getCoin()) {
+                throw new ActionUnavalibleException("Số coin của bạn không đủ!");
+            }
+
+            if(request.getUsedCoin() < 0) {
+                throw new ActionUnavalibleException("Số coin ko được âm!");
+            }
+
+            user.setCoin(user.getCoin() - request.getUsedCoin());
+
+            order.setCoinUsed(order.getCoinUsed() + request.getUsedCoin());
+            order.setAddress(request.getAddress());
+            order.setPhone(request.getPhone());
+
+            orderRepository.save(order);
+            userService.saveUser(user);
+            return order;
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());

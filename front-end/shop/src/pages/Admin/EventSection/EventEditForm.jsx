@@ -14,13 +14,14 @@ import NotFoundData from "../../Global/NotFoundData/NotFoundData"
 
 export default function EventEditForm() {
 
-    const { isEditFormOpen, eventId, setEditFormState, setRefreshKey, productList } = useContext(EventSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
+    const { isEditFormOpen, eventId, setEditFormState, refreshKey, setRefreshKey, productList } = useContext(EventSectionContext);
+
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function handleChangeImage(e) {
         let file = e.target.files[0];
@@ -159,7 +160,7 @@ export default function EventEditForm() {
     }
 
     useEffect(() => {
-        setNotifierData({ isError: false, title: "", message: "", isOpen: false });
+        // setNotifierData({ isError: false, title: "", message: "", isOpen: false });
 
         if (ref.current === null) return;
 
@@ -196,7 +197,7 @@ export default function EventEditForm() {
             setFormData(null);
             setImage(null);
         }
-    }, [isEditFormOpen, eventId, token, setNotifierData, setIsLoading]);
+    }, [isEditFormOpen, eventId, token, setNotifierData, setIsLoading, refreshKey]);
 
 
 

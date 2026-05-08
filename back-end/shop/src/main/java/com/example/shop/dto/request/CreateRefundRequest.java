@@ -17,4 +17,5 @@ public class CreateRefundRequest {
     private Integer orderItemId;
     private MultipartFile img;
     private String reason;
+    private Integer quantity;
 }

@@ -20,9 +20,10 @@ export default function AdminProductCVariantTab() {
     let [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
     let [curPageNumber, setCurPageNumber] = useState(1);
     let [refreshKey, setRefreshKey] = useState(0);
-    let { token, isLoading, setIsLoading } = useContext(AppContext);
+    let { token} = useContext(AppContext);
     let [tabData, setTabData] = useState({ headers: [], body: [], totalPages: 1 });
     let searchTimerRef = useRef(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     console.log(tabData.body)
 

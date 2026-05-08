@@ -1,4 +1,4 @@
-package com.example.shop.controller;
+    package com.example.shop.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

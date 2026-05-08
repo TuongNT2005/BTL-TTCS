@@ -14,12 +14,12 @@ import Loading from "../../organism/Loading/Loading"
 export default function ProductEditForm() {
 
     const { isEditFormOpen, productId, setEditFormState, setRefreshKey } = useContext(AdminProductContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function handleChangeImage(e) {
         let file = e.target.files[0];

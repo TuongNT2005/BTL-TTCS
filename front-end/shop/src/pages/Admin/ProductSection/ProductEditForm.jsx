@@ -11,13 +11,14 @@ import api from "../../../api"
 
 export default function ProductEditForm() {
 
-    const { isEditFormOpen, productId, setEditFormState, setRefreshKey } = useContext(ProductSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
-
+    const { isEditFormOpen, productId, refreshKey, setEditFormState, setRefreshKey } = useContext(ProductSectionContext);
+    
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
+    let { token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function handleChangeImage(e) {
         let file = e.target.files[0];
@@ -70,7 +71,7 @@ export default function ProductEditForm() {
     }
 
     useEffect(() => {
-        setNotifierData({ isError: false, title: "", message: "", isOpen: false });
+        // setNotifierData({ isError: false, title: "", message: "", isOpen: false });
 
         if (ref.current === null) return;
 
@@ -107,14 +108,14 @@ export default function ProductEditForm() {
             setFormData(null);
             setImage(null);
         }
-    }, [isEditFormOpen, productId, token, setNotifierData, setIsLoading]);
+    }, [isEditFormOpen, productId, token, refreshKey]);
 
     return <dialog ref={ref} className="m-auto h-max p-2 md:p-5 relative bg-white text-black rounded-2xl shadow-sm">
         
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
                     <form action="" id="update-product-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết sản phẩm</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">

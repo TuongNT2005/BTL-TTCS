@@ -19,7 +19,8 @@ import RefundRequestDetailForm from "./RefundRequestDetailForm";
 
 export default function RefundSection({ keyword }) {
 
-    const { isLoading, setIsLoading, token } = useContext(AppContext);
+    const {token } = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, refundRequestId: 1 });
     const [refreshKey, setRefreshKey] = useState("");
     const [curPage, setCurPage] = useState(1);
@@ -88,7 +89,7 @@ export default function RefundSection({ keyword }) {
         {detailFormState.isDetailFormOpen ? <RefundRequestDetailForm></RefundRequestDetailForm> : <></>}
         {
             !detailFormState.isDetailFormOpen && isLoading ? <Loading></Loading> :
-                <div className="space-y-6">
+                <div className="space-y-6 h-full">
                     <div className="flex flex-row gap-2">
                         <label htmlFor="select-status" className="font-bold">Trạng thái: </label>
                         <select name="" id="select-status border" defaultValue={statusFilter ? statusFilter : ""} onChange={onChangeFilterStatus}>
@@ -101,7 +102,7 @@ export default function RefundSection({ keyword }) {
                     </div>
                     {
                         refundRequests.length == 0 ? <NotFoundData></NotFoundData> :
-                        <Card title="Hoàn tiền">
+                        <Card className="h-full flex flex-col justify-between" title="Hoàn tiền">
                         <Table
                             columns={["ID", "Username", "Sản phẩm", "Ngày tạo", "Trạng thái", "Hành động"]}
                             rows={refundRequests.map((r) => (

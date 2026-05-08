@@ -3,6 +3,7 @@ package com.example.shop.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.shop.enums.Category;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,11 +27,6 @@ import lombok.Setter;
 @Builder
 @Table(name = "product")
 public class Product {
-
-    public static enum Category {
-        PANTS, SHIRT, DRESS, SET, SPORTWEAR
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

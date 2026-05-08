@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.shop.dto.model.ApiResponse;
 import com.example.shop.dto.request.CreateProductRequest;
-import com.example.shop.dto.request.EditProductVariantRequest;
+
 import com.example.shop.dto.request.UpdateProductRequest;
+import com.example.shop.dto.request.UpdateProductVariantRequest;
 import com.example.shop.dto.response.CreateProductResponse;
 import com.example.shop.dto.response.ProductDTO;
 import com.example.shop.dto.response.ProductVariantDTO;
@@ -176,8 +177,8 @@ public class ProductController {
         }
 
         @PutMapping("/product-variant")
-        public ResponseEntity<?> updateProductVariant(EditProductVariantRequest request) {
-                ProductVariant productVariant = productService.updateProductVariantById(request);
+        public ResponseEntity<?> updateProductVariant(UpdateProductVariantRequest request) {
+                ProductVariant productVariant = productService.updateProductVariant(request);
 
                 ApiResponse<ProductVariant> response = ApiResponse.<ProductVariant>builder()
                                 .code(200)

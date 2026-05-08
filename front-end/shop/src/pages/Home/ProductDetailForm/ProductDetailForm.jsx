@@ -15,14 +15,18 @@ import { IoMdStar } from "react-icons/io";
 export default function ProductDetailForm({ detailFormState, setDetailFormState }) {
 
     const { isDetailFormOpen, productId } = { ...detailFormState };
-    const { isLoading, setIsLoading } = useContext(AppContext);
+
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
-    let [product, setProduct] = useState(null);
-    let [productVariants, setProductVariants] = useState([]);
-    let [comments, setComments] = useState([]);
-    let [choosingStar, setChoosingStar] = useState(0);
+    const commentInputRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
+    const { token } = useContext(AppContext);
+    const [product, setProduct] = useState(null);
+    const [productVariants, setProductVariants] = useState([]);
+    const [comments, setComments] = useState([]);
+    const [choosingStar, setChoosingStar] = useState(0);
+    const [refreshKey, setRefreshKey] = useState("");
 
     function closeForm() {
         setProduct(null);
@@ -33,6 +37,29 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
 
     function onChoosingStar(e) {
         setChoosingStar(e.target.value);
+    }
+
+
+    async function onSubmitComment(e) {
+        e.preventDefault();
+
+        const content = commentInputRef.current.value;
+        if(!content || !choosingStar || choosingStar < 1) {
+            setNotifierData({   isError: true, 
+                                title: "Lỗi", 
+                                message: "Hãy nhập đủ thông tin!", 
+                                isOpen: true });
+            return;
+        }
+        
+        const form = new FormData();
+        form.set("productId", productId);
+        form.set("star", choosingStar);
+        form.set("content", content);
+
+        await fetchApiFunc(form, api.home.general.submitComment, "POST", token);
+        setRefreshKey(genID());
+
     }
 
     useEffect(() => {
@@ -74,7 +101,7 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
             setProductVariants([]);
             setComments([]);
         }
-    }, [isDetailFormOpen, productId, setIsLoading, setNotifierData, token]);
+    }, [isDetailFormOpen, productId, token, refreshKey]);
 
 
 
@@ -83,8 +110,8 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
-                    <form action="" id="update-event-form">
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
+                    <div>
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết sản phẩm</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
                             <div>
@@ -92,8 +119,8 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
                             </div>
                             <div className="flex flex-col h-full justify-center items-start p-2 md:p-5 gap-2">
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="name-update-event-form" className="font-bold">Tên sản phẩm: </label>
-                                    <input readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="name-update-event-form" type="text" defaultValue={product ? product.name : ""} />
+                                    <label htmlFor="name-" className="font-bold">Tên sản phẩm: </label>
+                                    <input readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="name-" type="text" defaultValue={product ? product.name : ""} />
                                 </div>
 
 
@@ -102,8 +129,8 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
                                     <p>{product ? product.category : ""}</p>
                                 </div>
                                 <div className="flex flex-col justify-center items-start w-full">
-                                    <label htmlFor="description-update-event-form" className="font-bold">Mô tả sản phẩm: </label>
-                                    <textarea readOnly id="description-update-event-form" type="text" placeholder="Nhập mô tả..." defaultValue={product ? product.description : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
+                                    <label htmlFor="description-" className="font-bold">Mô tả sản phẩm: </label>
+                                    <textarea readOnly id="description-" type="text" placeholder="Nhập mô tả..." defaultValue={product ? product.description : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
                                 </div>
                             </div>
                         </section>
@@ -153,14 +180,14 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
                                 }
                             </div>
                             <div>
-                                <textarea name="content" id="" className="w-full h-20 md:h-30 border indent-3" placeholder="Hãy nhập bình luận"></textarea>
-                                <div className="bg-green-500 hover:bg-green-600 py-1 px-3 md:py-2 md:px-5 w-fit rounded-sm text-white">Gửi</div>
+                                <textarea ref={commentInputRef} name="content" id="user-comment-input" className="w-full h-20 md:h-30 border indent-3" placeholder="Hãy nhập bình luận"></textarea>
+                                <div className="bg-green-500 hover:bg-green-600 py-1 px-3 md:py-2 md:px-5 w-fit rounded-sm text-white" onClick={onSubmitComment}>Gửi</div>
                             </div>
                         </section>
 
 
                         <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
-                    </form>
+                    </div>
                 </>
         }
     </dialog>

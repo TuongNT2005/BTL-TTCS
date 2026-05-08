@@ -22,6 +22,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @Controller
 @RequestMapping("/payment")
@@ -34,6 +36,7 @@ public class PaymentController {
     @GetMapping("/gen-url/{orderId}")
     public ResponseEntity<?> genPaymentUrl(@PathVariable(name = "orderId") Integer orderId, HttpServletRequest req)
             throws UnsupportedEncodingException {
+            
         VnPayParameters parameters = vnpayPaymentService.getParameters(orderId);
         String paymentUrl = vnpayPaymentService.genPaymentUrl(req, parameters);
 
@@ -41,12 +44,12 @@ public class PaymentController {
         data.put("paymentUrl", paymentUrl);
 
         ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
-                .code(201)
+                .code(200)
                 .message("Tạo địa chỉ thanh toán đơn hàng thành công!")
                 .data(data)
                 .build();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/handle-result")
@@ -75,4 +78,10 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/test-ipnUrl")
+    public String getMethodName(@RequestParam String param) {
+        System.out.println("hello");
+        return new String();
+    }
+    
 }

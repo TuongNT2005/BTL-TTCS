@@ -1,6 +1,6 @@
 import { useEffect, useContext, useRef } from "react"
 import ProductSectionContext from "./ProductSectionContext"
-import { fetchApiFunc, genID } from "../../../util"
+import { fetchApiFunc, genID, isFieldsFilled } from "../../../util"
 import api from "../../../api"
 import AppContext from "../../../AppContext"
 import { useState } from "react"
@@ -11,12 +11,13 @@ import Notifier from "../../Global/Notifier/Notifier"
 
 export default function ProductCreateForm() {
 
-    const { isCreateFormOpen, setIsCreateFormOpen, setRefreshKey} = useContext(ProductSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
+    const { isCreateFormOpen, setIsCreateFormOpen, setRefreshKey } = useContext(ProductSectionContext);
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
-    let [image, setImage] = useState(null);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
+    let { token } = useContext(AppContext);
+    let [image, setImage] = useState(uploadDefaultImg);
+    let [isLoading, setIsLoading] = useState(false);
 
     function handleCreateFormChangeImage(e) {
         let file = e.target.files[0];
@@ -38,36 +39,25 @@ export default function ProductCreateForm() {
         setIsCreateFormOpen(false);
     }
 
-    function getInputElement() {
-        let inputFields = [
-            document.getElementById("img-product-create-form"),
-            document.getElementById("name-product-create-form"),
-            document.getElementById("description-product-create-form")
-        ]
-        return inputFields;
-    }
 
-    function validateCreateForm() {
-        let inputFields = getInputElement();
-        for (let inputField of inputFields) {
-            if (!inputField.value) return false;
-        }
-        return true;
-    }
-
-    async function sendForm(e) {
-        e.preventDefault();
-        if (!validateCreateForm()) {
+    function validateCreateForm(form) {
+        if (!isFieldsFilled(form)) {
             setNotifierData({
                 isError: true,
                 title: "Lỗi!",
                 message: "Hãy nhập đầy đủ thông tin!",
                 isOpen: true
             });
-            return;
+            return false;
         }
+    }
+
+    async function sendForm(e) {
+        e.preventDefault();
 
         const form = document.getElementById("create-product-form");
+        if(!validateCreateForm(form)) return;
+
         const formData = new FormData(form);
         try {
             setIsLoading(true);
@@ -94,21 +84,9 @@ export default function ProductCreateForm() {
     }
 
     useEffect(function () {
-
-        function clearCreateForm() {
-            let inputFields = getInputElement();
-
-            for (let inputField of inputFields) {
-                inputField.value = "";
-            }
-
-            setImage(uploadDefaultImg);
-        }
-
         if (!ref.current) return;
 
         if (isCreateFormOpen) {
-            clearCreateForm();
             ref.current.showModal();
         }
         else {
@@ -121,7 +99,7 @@ export default function ProductCreateForm() {
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
                     <form action="" id="create-product-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Đơn tạo sản phẩm</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">

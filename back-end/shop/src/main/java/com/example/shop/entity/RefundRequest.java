@@ -3,6 +3,8 @@ package com.example.shop.entity;
 
 import java.time.LocalDateTime;
 
+import com.example.shop.enums.RefundStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,10 +28,6 @@ import lombok.Setter;
 @Table(name = "refundrequest")
 public class RefundRequest {
 
-    public static enum Status {
-        PENDING, ACCEPTED, REJECTED, DONE
-    } 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -51,6 +49,8 @@ public class RefundRequest {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private RefundStatus status;
 
+    @Column(name = "quantity")
+    private Integer quantity;
 }

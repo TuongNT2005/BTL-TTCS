@@ -14,13 +14,13 @@ import DiscountedProductItem from "../../Admin/EventSection/DiscountedProductIte
 
 export default function EventDetailForm() {
 
-    const { isDetailFormOpen, eventId, setDetailFormState, onOpenProductDetailForm} = useContext(EventSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
-    
+    const { isDetailFormOpen, eventId, setDetailFormState, onOpenProductDetailForm} = useContext(EventSectionContext); 
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
+    let { token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function closeForm() {
         setFormData(null);
@@ -61,7 +61,7 @@ export default function EventDetailForm() {
             ref.current.close();
             setFormData(null);
         }
-    }, [isDetailFormOpen, eventId, token, setNotifierData, setIsLoading]);
+    }, [isDetailFormOpen, eventId, token]);
 
 
 
@@ -70,7 +70,7 @@ export default function EventDetailForm() {
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
                     <form action="" id="update-event-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết sự kiện</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">

@@ -16,13 +16,14 @@ import ImportVariantForm from "./ImportVariantForm";
 
 export default function WareHouseSection({ keyword }) {
 
-    const { isLoading, setIsLoading, token } = useContext(AppContext);
+    const {token } = useContext(AppContext);
     const [productList, setProductList] = useState("");
     const [isImportFormOpen, setIsImportFormOpen] = useState(false);
     const [editFormState, setEditFormState] = useState({isEditFormOpen: false, productVariantId: 1});
     const [refreshKey, setRefreshKey] = useState("");
     const [curPage, setCurPage] = useState(1);
     const [totalPage, setTotalPage] = useState(100);
+    const [isLoading, setIsLoading] = useState(false);
     const [productVariants, setProductVariants] = useState([
         { id: 1, image: "", name: "Áo dài", size: "L", color: "Hồng cánh sen", quantity: 10, status: "Available", category: "Áo" },
         { id: 2, image: "", name: "Quần Short Nam", size: "XL", color: "Xám", quantity: 100, status: "Unavailable", category: "Quần" },
@@ -80,7 +81,7 @@ export default function WareHouseSection({ keyword }) {
         fetchData();
     }, [searchData, refreshKey])
 
-    return <WareHouseSectionContext.Provider value={{...editFormState, setEditFormState, setRefreshKey, setIsImportFormOpen, productList}}>
+    return <WareHouseSectionContext.Provider value={{...editFormState, setEditFormState, refreshKey, setRefreshKey, setIsImportFormOpen, productList}}>
         <>
             {editFormState.isEditFormOpen ? <ProductVariantEditForm></ProductVariantEditForm> : isImportFormOpen ? <ImportVariantForm></ImportVariantForm> : <></>}
             {

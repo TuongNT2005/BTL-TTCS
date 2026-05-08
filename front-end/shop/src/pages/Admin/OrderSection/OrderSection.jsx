@@ -16,7 +16,8 @@ import OrderDetailForm from "./OrderDetailForm";
 
 export default function OrderSection() {
 
-    const { isLoading, setIsLoading, token } = useContext(AppContext);
+    const { token } = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, orderId: 1 });
     const [refreshKey, setRefreshKey] = useState("");
     const [curPage, setCurPage] = useState(1);
@@ -41,7 +42,7 @@ export default function OrderSection() {
         setCurPage(clickedPageNumber);
     }, [])
 
-    let onChangeFilterStatus = useCallback(function(e) {
+    let onChangeFilterStatus = useCallback(function (e) {
         let chosenStatus = e.target.value;
         setStatusFilter(chosenStatus);
     }, [])
@@ -76,11 +77,11 @@ export default function OrderSection() {
     }, [searchData, refreshKey])
 
 
-    return <OrderSectionContext.Provider value={{...detailFormState ,setRefreshKey, setDetailFormState}}>
+    return <OrderSectionContext.Provider value={{ ...detailFormState, setRefreshKey, setDetailFormState }}>
         {detailFormState.isDetailFormOpen ? <OrderDetailForm></OrderDetailForm> : <></>}
         {
             !detailFormState.isDetailFormOpen && isLoading ? <Loading></Loading> :
-                <div className="space-y-6">
+                <div className="space-y-6 flex flex-col h-full">
                     <div className="flex flex-row gap-2">
                         <label htmlFor="select-status" className="font-bold">Trạng thái: </label>
                         <select name="" id="select-status border" defaultValue={statusFilter ? statusFilter : ""} onChange={onChangeFilterStatus}>
@@ -94,24 +95,24 @@ export default function OrderSection() {
                     </div>
                     {
                         orders.length == 0 ? <NotFoundData></NotFoundData> :
-                        <Card title="Hoàn tiền">
-                        <Table
-                            columns={["ID", "Username", "Ngày tạo", "Địa chỉ", "Số điện thoại", "Tổng tiền", "Trạng thái", "Hành động"]}
-                            rows={orders.map((r) => (
-                                <tr key={r.id}>
-                                    <td className="px-4 py-4 font-medium">{r.order.id}</td>
-                                    <td className="px-4 py-4 font-medium">{r.user.username}</td>
-                                    <td className="px-4 py-4">{r.order.createdAt}</td>
-                                    <td className="px-4 py-4">{r.order.address}</td>
-                                    <td className="px-4 py-4">{r.order.phone}</td>
-                                    <td className="px-4 py-4">{r.price}</td>
-                                    <td className="px-4 py-4"><Badge value={r.order.status} /></td>
-                                    <td className="px-4 py-4"><ActionButtons id={r.order.id} onOpenDetailForm={onOpenDetailForm} /></td>
-                                </tr>
-                            ))}
-                        />
-                        <Pagination currentPage={curPage} totalPage={totalPage} numberPerLine={5} onGoClickPage={onGoClickPage} onGoNextPage={onGoNextPage} onGoPrevPage={onGoPrevPage} />
-                    </Card>
+                            <Card className="h-full flex flex-col justify-between" title="Hoàn tiền">
+                                <Table className={"overflow-scroll flex-1 w-full hide-scrollbar"}
+                                    columns={["ID", "Username", "Ngày tạo", "Địa chỉ", "Số điện thoại", "Tổng tiền", "Trạng thái", "Hành động"]}
+                                    rows={orders.map((r) => (
+                                        <tr key={r.id}>
+                                            <td className="px-4 py-4 font-medium">{r.order.id}</td>
+                                            <td className="px-4 py-4 font-medium">{r.user.username}</td>
+                                            <td className="px-4 py-4">{r.order.createdAt}</td>
+                                            <td className="px-4 py-4">{r.order.address}</td>
+                                            <td className="px-4 py-4">{r.order.phone}</td>
+                                            <td className="px-4 py-4">{r.price}</td>
+                                            <td className="px-4 py-4"><Badge value={r.order.status} /></td>
+                                            <td className="px-4 py-4"><ActionButtons id={r.order.id} onOpenDetailForm={onOpenDetailForm} /></td>
+                                        </tr>
+                                    ))}
+                                />
+                                <Pagination currentPage={curPage} totalPage={totalPage} numberPerLine={5} onGoClickPage={onGoClickPage} onGoNextPage={onGoNextPage} onGoPrevPage={onGoPrevPage} />
+                            </Card>
                     }
                 </div>
         }

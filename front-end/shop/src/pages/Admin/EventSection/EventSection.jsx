@@ -16,7 +16,8 @@ import { fetchApiFunc, formatDate, getEventBadgeValue } from "../../../util";
 
 export default function EventsSection({ keyword }) {
 
-    const { isLoading, setIsLoading, token } = useContext(AppContext);
+    const {token } = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(false);
     const [productList, setProductList] = useState("");
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
     const [editFormState, setEditFormState] = useState({ isEditFormOpen: false, eventId: 1 });
@@ -94,11 +95,11 @@ export default function EventsSection({ keyword }) {
     }, [searchData, refreshKey])
 
 
-    return <EventSectionContext.Provider value={{...editFormState, setEditFormState, setRefreshKey, productList, isCreateFormOpen, setIsCreateFormOpen}}>
+    return <EventSectionContext.Provider value={{...editFormState, setEditFormState, refreshKey, setRefreshKey, productList, isCreateFormOpen, setIsCreateFormOpen}}>
         <> {editFormState.isEditFormOpen ? <EventEditForm></EventEditForm> : isCreateFormOpen ? <EventCreateForm></EventCreateForm> : <></>}
             {
                 !editFormState.isEditFormOpen && !isCreateFormOpen && isLoading ? <Loading></Loading> :
-                    <div className="space-y-6">
+                    <div className="space-y-6 h-full">
                         <div className="w-full flex flex-col md:flex-row md:gap-x-2 ">
                             <div className="flex flex-row gap-2">
                                 <label htmlFor="startAtInput" className="font-bold">Ngày bắt đầu: </label>
@@ -109,8 +110,8 @@ export default function EventsSection({ keyword }) {
                                 <input onChange={onChangeEndAt} defaultValue={endAt} type="date" className="border px-1 py-0.5 rounded-lg border-violet-200" id="endAtInput" />
                             </div>
                         </div>
-                        <Card title="Sự kiện" action={<button onClick={onOpenCreateForm} className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white"><FaPlus size={16} /> Thêm</button>}>
-                            <Table
+                        <Card title="Sự kiện" action={<button onClick={onOpenCreateForm} className="h-full inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white"><FaPlus size={16} /> Thêm</button>}>
+                            <Table className={"overflow-scroll flex-1 w-full hide-scrollbar"}
                                 columns={["ID", "Tiêu đề", "Giảm", "Bắt đầu", "Kết thúc", "Trạng thái", "Hành động"]}
                                 rows={events.map((e) => (
                                     <tr key={e.id}>

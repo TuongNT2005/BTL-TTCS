@@ -1,4 +1,4 @@
-import { useContext, useRef, useEffect } from "react"
+import { useContext, useRef, useEffect, useState } from "react"
 import { fetchApiFunc, genID } from "../../../util"
 import AppContext from "../../../AppContext"
 import { IoCloseSharp } from "react-icons/io5";
@@ -11,11 +11,10 @@ export default function ImportVariantForm() {
 
 
     const { setIsImportFormOpen, setRefreshKey, productList } = useContext(WareHouseSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
-
+    let [isLoading, setIsLoading] = useState(false);
 
     function closeForm() {
         setIsImportFormOpen(false);

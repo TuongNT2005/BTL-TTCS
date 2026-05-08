@@ -14,12 +14,12 @@ import { SiOutline } from "react-icons/si"
 export default function RefundRequestDetailForm() {
 
     const { isDetailFormOpen, refundRequestId, setDetailFormState, setRefreshKey } = useContext(RefundSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function closeForm() {
         setFormData(null);

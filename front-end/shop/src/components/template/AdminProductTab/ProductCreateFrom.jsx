@@ -15,11 +15,11 @@ import uploadDefaultImg from "../../../../../../uploads/uploadDefault.png"
 export default function ProductCreateForm() {
 
     const { isCreateFormOpen, setIsCreateFormOpen, setRefreshKey} = useContext(AdminProductContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [image, setImage] = useState(null);
+    let [isLoading, setIsLoading] = useState(false); 
 
     function handleCreateFormChangeImage(e) {
         let file = e.target.files[0];

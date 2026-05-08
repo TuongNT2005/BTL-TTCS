@@ -1,7 +1,6 @@
 package com.example.shop.service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +14,6 @@ import com.example.shop.dto.request.CreateEventRequest;
 import com.example.shop.dto.request.UpdateEventRequest;
 import com.example.shop.entity.Event;
 import com.example.shop.exception.ActionUnavalibleException;
-import com.example.shop.exception.DuplicatedItemException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.EventRepository;
 import com.example.shop.repository.ProductRepository;
@@ -30,6 +28,7 @@ public class EventService {
     private EventRepository eventRepository;
     @Autowired
     private ProductRepository productRepository;
+    
 
     public Integer findDiscounts(Integer productId) {
         List<Event> events = eventRepository.findAllByProductId(productId);
@@ -47,7 +46,7 @@ public class EventService {
     public void checkDuplicatedEvent(String title) {
         Optional<Event> event = eventRepository.findByTitleIgnoringCase(title);
         if (event.isPresent()) {
-            throw new DuplicatedItemException(String.format("Sự kiện: %s đã tồn tại trong hệ thống", title));
+            throw new ActionUnavalibleException(String.format("Sự kiện: %s đã tồn tại trong hệ thống", title));
         }
     }
 

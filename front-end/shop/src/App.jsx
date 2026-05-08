@@ -11,18 +11,17 @@ import AdminPageProductTab from "./components/template/AdminProductTab/AdminProd
 import AdminProductCVariantTab from "./components/template/AdminProductVariantTab/AdminProductVariantTab";
 import Admin from "./pages/Admin/Admin";
 import Home from "./pages/Home/Home";
+import CustomerPage from "./pages/Customer/CustomerPage";
 
 function App() {
 
   let [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
   let [isLoading, setIsLoading] = useState(false);
   let [token, setToken] = useState("");
+  let [authUser, setAuthUser] = useState(null);
 
-  function onClose() {
-        setNotifierData(prev => ({ ...prev, isOpen: false }));
-    }
   return (
-    <AppContext.Provider value={{...notifierData, setNotifierData, onClose, token, setToken, isLoading, setIsLoading}}>
+    <AppContext.Provider value={{...notifierData, setNotifierData, token, setToken, isLoading, setIsLoading, authUser, setAuthUser}}>
       <>
         <Routes>
           <Route index element={<LoginPage />} />
@@ -30,6 +29,7 @@ function App() {
           <Route path="warehouse" element={<AdminProductCVariantTab></AdminProductCVariantTab>}></Route>
           <Route path="registration" element={<RegistrationPage />}></Route>
           <Route path="home" element={<Home></Home>}></Route>
+          <Route path="customer" element={<CustomerPage></CustomerPage>}></Route>
         </Routes>
 
       </>

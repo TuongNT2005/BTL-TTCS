@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.shop.dto.model.ApiResponse;
 import com.example.shop.dto.request.CancelOrderRequest;
 import com.example.shop.dto.request.CreateNewOrderRequest;
+import com.example.shop.dto.request.UpdateOrderInforRequest;
 import com.example.shop.dto.response.CancelOrderResponse;
 import com.example.shop.dto.response.CreateNewOrderResponse;
 import com.example.shop.dto.response.OrderDTO;
@@ -56,8 +57,23 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     
-    @PostMapping("/cancel")
-    public ResponseEntity<?> cancelOrder(@RequestBody CancelOrderRequest request) {
+    @PutMapping("/update")
+    public ResponseEntity<?> updateOrderInfor(UpdateOrderInforRequest request) {
+        User user = authService.getAuthenticatedUser();
+        Order order = orderService.updateOrderInfor(request, user);
+
+        ApiResponse<OrderDTO> response = ApiResponse.<OrderDTO>builder()
+            .code(200)
+            .message("Cập nhập đơn hàng thành công!")
+            .data(orderService.convertToOrderDTO(order))
+            .build();
+        
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
+
+    @PutMapping("/cancel")
+    public ResponseEntity<?> cancelOrder(CancelOrderRequest request) {
         Order canceledOrder = orderService.cancelOrder(request.getOrderId());
 
         ApiResponse<CancelOrderResponse> response = ApiResponse.<CancelOrderResponse>builder()
@@ -109,4 +125,20 @@ public class OrderController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @GetMapping("get-all/{userId}")
+    public ResponseEntity<?> getAllUserOrder(@RequestParam(name = "page") Integer page) {
+
+        User user = authService.getAuthenticatedUser();
+        Page<OrderDTO> orders = orderService.findAllOrdersByUser(user, page - 1);
+
+        ApiResponse<Page<OrderDTO>> response = ApiResponse.<Page<OrderDTO>>builder()
+            .code(200)
+            .message("Lấy danh sách các đơn hàng thành công!")
+            .data(orders)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
 }   

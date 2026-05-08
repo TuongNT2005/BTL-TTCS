@@ -8,11 +8,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.shop.entity.RefundRequest;
+import com.example.shop.enums.RefundStatus;
 
 @Repository
 public interface RefundRequestRepository extends JpaRepository<RefundRequest, Integer> {
 
-    public Page<RefundRequest> findAllByStatus(Pageable pageable, RefundRequest.Status status);
+    public Page<RefundRequest> findAllByStatus(Pageable pageable, RefundStatus status);
+
+    @Query(value = "SELECT CASE WHEN SUM(quantity) IS NULL THEN 0 ELSE SUM(quantity) END FROM REFUNDREQUEST WHERE orderitemId = :orderItemId", nativeQuery = true)
+    public Integer getReturnedItemQuantityByOrderItemId(@Param(value = "orderItemId") Integer orderItemId);
+
 
     @Query(value = """
             select a.*

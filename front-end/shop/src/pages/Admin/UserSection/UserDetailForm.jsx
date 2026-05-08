@@ -12,11 +12,11 @@ import Badge from "../../Global/Bagde/Bagde";
 export default function UserDetailForm() {
 
     const { isDetailFormOpen, userId, setDetailFormState } = useContext(UserSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
 
     function closeForm() {

@@ -21,8 +21,7 @@ public class ColorService {
             String fomatedColorName = Converter.convertStringToCapitalizedForm(colorName);
             Optional<Color> container = colorRepository.findByName(fomatedColorName);
             if (container.isEmpty()) {
-                Color newColor = Color.builder().name(fomatedColorName).build();
-                colorRepository.save(newColor);
+                return null;
             }
             Color color = colorRepository.findByName(fomatedColorName).get();
             return color.getId();
@@ -30,7 +29,18 @@ public class ColorService {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
+    }
 
+    public Color createNewColor(String colorName) {
+        try {
+            String fomatedColorName = Converter.convertStringToCapitalizedForm(colorName);
+            Color newColor = Color.builder().name(fomatedColorName).build();
+                colorRepository.save(newColor);
+            return newColor;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public String findColorNameById(Integer colorId) {

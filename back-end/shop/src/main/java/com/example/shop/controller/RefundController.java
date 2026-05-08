@@ -16,6 +16,7 @@ import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.entity.RefundRequest;
 import com.example.shop.entity.User;
+import com.example.shop.service.AuthService;
 import com.example.shop.service.ColorService;
 import com.example.shop.service.ProductService;
 import com.example.shop.service.RefundService;
@@ -41,16 +42,20 @@ public class RefundController {
     @Autowired
     private ColorService colorService;
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping(value = "/create", consumes = "multipart/form-data")
-    public ResponseEntity<?> postMethodName(CreateRefundRequest request) {
-        RefundRequest refundRequest = refundService.createNewRefundRequest(request);
+    public ResponseEntity<?> createRefundRequest(CreateRefundRequest request) {
+        User user = authService.getAuthenticatedUser();
+        RefundRequest refundRequest = refundService.createNewRefundRequest(request, user);
 
         ApiResponse<CreateRefundResponse> response = ApiResponse.<CreateRefundResponse>builder()
                 .code(200)
                 .message("Tạo yêu cầu hoàn tiền thành công!")
                 .data(new CreateRefundResponse(refundRequest))
                 .build();
-
+        
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -104,16 +109,10 @@ public class RefundController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getRefundRequestById(@PathVariable(name = "id") Integer refundRequestId) {
         RefundRequest refundRequest = refundService.findByRefundRequestId(refundRequestId);
-        User user = userService.findUserById(refundRequest.getUserId());
-        Product product = productService.findByOrderItemId(refundRequest.getOrderItemId());
-        ProductVariant productVariant = productService.findProductVariantByOrderItemId(refundRequest.getOrderItemId());
-        String color = colorService.findColorNameById(productVariant.getColorId());
-
         ApiResponse<RefundRequestDTO> response = ApiResponse.<RefundRequestDTO>builder()
                 .code(200)
                 .message("Lấy dữ liệu thành công!")
-                .data(Converter.convertRefundRequestToRefundRequestDTO(refundRequest, user, product, color,
-                        productVariant))
+                .data(refundService.convertToRefundRequestDTO(refundRequest))
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);

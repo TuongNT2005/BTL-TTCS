@@ -15,11 +15,11 @@ import Table from "../Table"
 export default function OrderDetailForm() {
 
     const { isDetailFormOpen, orderId, setDetailFormState, setRefreshKey } = useContext(OrderSectionContext);
-    const { isLoading, setIsLoading } = useContext(AppContext);
 
     const ref = useRef(null);
     let { setNotifierData, token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
+    let [isLoading, setIsLoading] = useState(false);
 
     function closeForm() {
         setFormData(null);

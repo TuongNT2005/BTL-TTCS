@@ -42,15 +42,32 @@ export default {
     home: {
         general: {
             getProductById: "http://localhost:8080/products",
-            getCommentByProductId: "http://localhost:8080/comment"
+            getCommentByProductId: "http://localhost:8080/comment",
+            searchProduct: "http://localhost:8080/products/search",
+            addToCart: "http://localhost:8080/cart/add-to-cart",
+            submitComment: "http://localhost:8080/comment/create"
         },
         eventSection: {
             getEvents: "http://localhost:8080/event/all",
             getEventById: "http://localhost:8080/event"
         },
         hotProductSection: {
-            getProducts: "http://localhost:8080/products/search?keyword=&page=1",
+            getProducts: "http://localhost:8080/products/search?keyword=&page=1&category=",
             
+        },
+        
+    },
+    customer: {
+        cartSection: {
+            getCartItems: "http://localhost:8080/cart",
+            createOrder: "http://localhost:8080/order/create",
+            deleteItems: "http://localhost:8080/cart/delete-from-cart"
+        },
+        orderSection: {
+            getOrders: "http://localhost:8080/order/get-all",
+            updateOrderInfor: "http://localhost:8080/order/update",
+            cancelOrder: "http://localhost:8080/order/cancel",
+            getPaymentUrl: "http://localhost:8080/payment/gen-url"
         }
     }
 };

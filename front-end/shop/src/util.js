@@ -86,8 +86,6 @@ export function isFieldsFilled(form, exeptionIds = {}) {
   const fields = [...inputs, ...textAreas, ...selects];
   for (let field of fields) {
     if (exeptionIds[field.id]) continue;
-    console.log(field);
-    console.log(field.value);
     if (!field.value) {
       return false;
     }
