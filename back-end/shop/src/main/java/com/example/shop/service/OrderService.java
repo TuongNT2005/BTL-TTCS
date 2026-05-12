@@ -57,9 +57,11 @@ public class OrderService {
 
         return OrderDTO.builder()
                 .order(order)
+                .createdAt(Converter.formatDateTime(order.getCreatedAt()))
+                .expiredAt(Converter.formatDateTime(order.getExpriredat()))
                 .user(userService.convertToUserDTO(user))
                 .orderItems(orderItemDTOs)
-                .price(calTotalPriceByOrderId(order.getId()))
+                .price(calTotalPriceByOrderId(order.getId()))   
                 .build();
     }
 
@@ -324,6 +326,17 @@ public class OrderService {
             userService.saveUser(user);
             return order;
 
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Page<OrderItemDTO> findAllBoughtItemByUserId(Integer userId, Integer page) {
+        try {
+            Page<OrderItem> orderItems = orderItemRepository.findAllBoughtItemByUserId(userId, PageRequest.of(page, ConstantVal.itemPerPage));
+            Page<OrderItemDTO> orderItemDtos = orderItems.map(orderItem -> convertToOrderItemDTO(orderItem));
+            return orderItemDtos;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());

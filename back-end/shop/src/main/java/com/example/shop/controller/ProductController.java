@@ -10,6 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,6 +73,7 @@ public class ProductController {
         }
 
         @PostMapping("/create")
+        @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
         public ResponseEntity<?> createNewProduct(CreateProductRequest request) {
                 Product product = productService.createNewProduct(request);
 
@@ -83,6 +87,7 @@ public class ProductController {
         }
 
         @PutMapping("/update")
+        @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
         public ResponseEntity<?> updateProduct(UpdateProductRequest request) {
                 Product updatedProduct = productService.updateProduct(request);
                 ApiResponse<Product> response = ApiResponse.<Product>builder()
@@ -96,6 +101,9 @@ public class ProductController {
 
         @GetMapping("/products")
         public ResponseEntity<?> getAllProducts() {
+                // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                // System.out.println("Authorities: " + authentication.getAuthorities());
+
                 List<Product> products = productService.getAllProducts();
                 ApiResponse<List<Product>> response = ApiResponse.<List<Product>>builder()
                                 .code(200)
@@ -118,7 +126,7 @@ public class ProductController {
 
                 Map<String, Object> data = new TreeMap<String, Object>();
                 data.put("product", product);
-                data.put("productVariant", productVariantDTOs); 
+                data.put("productVariant", productVariantDTOs);
                 data.put("categories", Product.getCategories());
 
                 ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
@@ -139,9 +147,10 @@ public class ProductController {
                                 PageRequest.of(page - 1, ConstantVal.itemPerPage));
 
                 Page<ProductVariantDTO> productVariants = res.map(productVariant -> {
-                        Product product = productService.findProductById(productVariant.getProductId());
-                        return Converter.convertProductToProductVariantDTO(productVariant, product, colorService,
-                                        eventService);
+                        // Product product = productService.findProductById(productVariant.getProductId());
+                        // return Converter.convertProductToProductVariantDTO(productVariant, product, colorService,
+                        //                 eventService);
+                        return productService.convertToProductVariantDTO(productVariant);
                 });
 
                 Map<String, Integer> productList = new TreeMap<>();

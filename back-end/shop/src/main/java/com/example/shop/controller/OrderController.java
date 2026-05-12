@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.shop.dto.model.ApiResponse;
@@ -16,6 +16,7 @@ import com.example.shop.dto.request.UpdateOrderInforRequest;
 import com.example.shop.dto.response.CancelOrderResponse;
 import com.example.shop.dto.response.CreateNewOrderResponse;
 import com.example.shop.dto.response.OrderDTO;
+import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.Order;
 import com.example.shop.entity.User;
 import com.example.shop.service.AuthService;
@@ -113,7 +114,8 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     
-    @PutMapping("set-sending/{orderId}")
+    @PutMapping("/set-sending/{orderId}")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public ResponseEntity<?> comfirmSendingOrder(@PathVariable(name = "orderId") Integer orderid) {
         Order order = orderService.comfirmSendingOrder(orderid);
         
@@ -126,7 +128,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("get-all/{userId}")
+    @GetMapping("/get-all/{userId}")
     public ResponseEntity<?> getAllUserOrder(@RequestParam(name = "page") Integer page) {
 
         User user = authService.getAuthenticatedUser();
@@ -136,6 +138,21 @@ public class OrderController {
             .code(200)
             .message("Lấy danh sách các đơn hàng thành công!")
             .data(orders)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+    
+    @GetMapping("/bought-items")
+    public ResponseEntity<?> getMethodName(@RequestParam(name = "page") Integer page) {
+        User user = authService.getAuthenticatedUser();
+        System.out.println(user.getUsername());
+        Page<OrderItemDTO> orderItemDTOs = orderService.findAllBoughtItemByUserId(user.getId(), page-1);
+
+        ApiResponse<Page<OrderItemDTO>> response = ApiResponse.<Page<OrderItemDTO>>builder()
+            .code(200)
+            .message("Lấy danh sách các sản phẩm đã mua thành công!")
+            .data(orderItemDTOs)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);

@@ -3,7 +3,6 @@ package com.example.shop.dto.response;
 import java.util.List;
 
 import com.example.shop.entity.Order;
-import com.example.shop.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +20,6 @@ public class OrderDTO {
     private Order order;
     private List<OrderItemDTO> orderItems;
     private Long price;
+    private String createdAt;
+    private String expiredAt;
 }

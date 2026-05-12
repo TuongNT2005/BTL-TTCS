@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.example.shop.dto.request.LoginRequest;
 import com.example.shop.dto.response.LoginResponse;
 import com.example.shop.entity.User;
+import com.example.shop.repository.UserRepository;
 import com.example.shop.util.Converter;
 import com.example.shop.util.RedisConnection;
 import com.nimbusds.jwt.SignedJWT;
@@ -27,6 +28,8 @@ public class AuthService {
     private JwtService jwtService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     public LoginResponse login(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
@@ -37,7 +40,8 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Tạo các token
-        User user = (User) authentication.getPrincipal();
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy user!"));
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 

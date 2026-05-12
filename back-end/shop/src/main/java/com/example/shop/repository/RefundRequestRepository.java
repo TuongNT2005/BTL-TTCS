@@ -40,4 +40,29 @@ public interface RefundRequestRepository extends JpaRepository<RefundRequest, In
             Pageable pageable,
             @Param("status") String status,
             @Param("keyword") String keyword);
+
+    @Query(value = """
+            select a.*
+            from refundrequest a
+            left join orderitem oi on a.orderItemId = oi.id
+            left join productvariant pv on oi.productVariantId = pv.id
+            left join product p on pv.productId = p.id
+            where (:keyword is null or :keyword = '' or p.name like concat('%', :keyword, '%'))
+              and (:status is null or :status = '' or a.status = :status)
+              and a.userid = :userId
+            """, countQuery = """
+            select count(*)
+            from refundrequest a
+            left join orderitem oi on a.orderItemId = oi.id
+            left join productvariant pv on oi.productVariantId = pv.id
+            left join product p on pv.productId = p.id
+            where (:keyword is null or :keyword = '' or p.name like concat('%', :keyword, '%'))
+              and (:status is null or a.status = :status)
+              and a.userid = :userId
+            """, nativeQuery = true)
+    Page<RefundRequest> searchRefundRequestByUserId(
+            Pageable pageable,
+            @Param("status") String status,
+            @Param("keyword") String keyword,
+            @Param("userId") Integer userId);
 }

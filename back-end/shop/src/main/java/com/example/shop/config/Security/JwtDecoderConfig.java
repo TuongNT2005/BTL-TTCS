@@ -1,4 +1,4 @@
-package com.example.shop.config;
+package com.example.shop.config.Security;
 
 import java.text.ParseException;
 import java.util.Objects;

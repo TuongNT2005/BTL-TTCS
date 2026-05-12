@@ -22,6 +22,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
 
+
 @Service
 public class JwtService {
 
@@ -41,6 +42,7 @@ public class JwtService {
             .jwtID(UUID.randomUUID().toString())
             .expirationTime(expirationTime)
             .claim("userId", user.getId())
+            .claim("scp", user.getRole().toString())
             .build();
         
         Payload payload = new Payload(claimsSet.toJSONObject());
@@ -67,12 +69,15 @@ public class JwtService {
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         
+        System.out.println(user.getRole().toString());
+
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
             .subject(user.getUsername())
             .issueTime(issueTime)
             .expirationTime(expirationTime)
             .claim("msg", "Hello world")
             .claim("userId", user.getId())
+            .claim("scp", user.getRole().toString())
             .build();
         
         Payload payload = new Payload(claimsSet.toJSONObject());
@@ -100,7 +105,7 @@ public class JwtService {
         if(expirationTime.before(new Date())) {
             return false;
         }
-        String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
+        String tokenId = (String) signedJWT.getJWTClaimsSet().getJWTID();
         // Kiểm tra nếu token đã tồn tại trong redis --> Đã logout --> ko verify token này
         if(RedisConnection.isInRedis(tokenId)) return false;
         return signedJWT.verify(new MACVerifier(secretKey));

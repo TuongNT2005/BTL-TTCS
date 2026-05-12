@@ -1,10 +1,5 @@
 package com.example.shop.entity;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.shop.enums.UserEnum;
 
@@ -29,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Table(name = "user")
 @Builder
-public class User implements UserDetails {
+public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,9 +59,5 @@ public class User implements UserDetails {
     @Column(name = "coin")
     private Long coin;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
 
 }

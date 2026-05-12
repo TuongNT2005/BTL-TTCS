@@ -177,6 +177,8 @@ export default function EventEditForm() {
                     setFormData(res.data);
                     let curImgUrl = getImgPath(res.data.event.image);
                     setImage({ curImg: curImgUrl, prevImg: curImgUrl });
+                    console.log(res.data)
+                    console.log(curImgUrl);
                 } catch (error) {
                     console.error(error);
                     setNotifierData({
@@ -212,6 +214,7 @@ export default function EventEditForm() {
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
                             <div>
                                 <img src={image ? image.curImg : getImgPath("")} alt="image" className="w-2xs md:w-xs m-2" />
+                                 {/* <img src={image.curImg} alt="image" className="w-2xs md:w-xs m-2" /> */}
                                 <input name="background" id="img-update-event-form" type="file" accept="image/*" onChange={handleChangeImage} className="hidden" />
                                 <div className="flex justify-center items-center gap-1">
                                     <label htmlFor="img-update-event-form">

@@ -13,7 +13,7 @@ export default function OrderSectionItem({ item, onOpenOrderDetailForm }) {
 
             <div className="flex flex-col items-start text-sm">
                 <p><span className="font-semibold">Mã đơn hàng:</span> {item.order.id}</p>
-                <p><span className="font-semibold">Ngày tạo:</span> {item.order.createdAt}</p>
+                <p><span className="font-semibold">Ngày tạo:</span> {item.createdAt}</p>
                 <p><span className="font-semibold">Trạng thái:</span> <Badge value={item.order.status}></Badge></p>
             </div>
 

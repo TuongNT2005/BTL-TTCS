@@ -9,6 +9,6 @@ public class FileConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:D:/project/BTL-TTCS/uploads/");
+                .addResourceLocations("file:D:/project/Newfolder/BTL-TTCS/uploads/");
     }
 }

@@ -50,11 +50,13 @@ export default function ProductCreateForm() {
             });
             return false;
         }
+        return true;
     }
 
     async function sendForm(e) {
         e.preventDefault();
-
+        
+        console.log("hellp");
         const form = document.getElementById("create-product-form");
         if(!validateCreateForm(form)) return;
 

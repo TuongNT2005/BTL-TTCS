@@ -19,11 +19,9 @@ import com.example.shop.entity.User;
 import com.example.shop.service.AuthService;
 import com.example.shop.service.CommentService;
 import com.example.shop.service.UserService;
-import com.example.shop.util.Converter;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 

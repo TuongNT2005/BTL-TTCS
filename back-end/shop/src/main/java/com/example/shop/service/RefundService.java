@@ -1,6 +1,7 @@
 package com.example.shop.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.RefundRequestRepository;
 import com.example.shop.util.ConstantVal;
+import com.example.shop.util.Converter;
 import com.example.shop.util.FileUtil;
 
 @Service
@@ -47,7 +49,7 @@ public class RefundService {
                 .image(refundRequest.getImage())
                 .reason(refundRequest.getReason())
                 .status(refundRequest.getStatus().toString())
-                .createdAt(refundRequest.getCreatedAt().toString())
+                .createdAt(Converter.formatDateTime(refundRequest.getCreatedAt()))
                 .build();
     }
 
@@ -112,7 +114,7 @@ public class RefundService {
         OrderItem orderItem = orderService.findOrderItemById(refundRequest.getOrderItemId());
         try {
             refundRequest.setStatus(RefundStatus.DONE);
-            user.setCoin(user.getCoin() + orderItem.getPrice());
+            user.setCoin(user.getCoin() + orderItem.getPrice() * refundRequest.getQuantity());
 
             refundRequestRepository.save(refundRequest);
             userService.saveUser(user);
@@ -163,6 +165,21 @@ public class RefundService {
             }
             return refundRequestRepository.searchRefundRequest(PageRequest.of(pageNumber, ConstantVal.itemPerPage),
                     status, keyword);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public Page<RefundRequest> searchRefundRequestByUserId(Integer pageNumber, String status, String keyword, Integer userId) {
+        try {
+            if (!isStatusValid(status)) {
+                if (status != null && !status.trim().equals("")) {
+                    throw new ActionUnavalibleException("Không thể thực hiện do trạng thái không hợp lệ!");
+                }
+            }
+            return refundRequestRepository.searchRefundRequestByUserId(PageRequest.of(pageNumber, ConstantVal.itemPerPage),
+                    status, keyword, userId);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());

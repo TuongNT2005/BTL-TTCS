@@ -175,11 +175,11 @@ export default function OrderDetailForm() {
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="createdAt-order-detail-form" className="font-bold">Tạo vào: </label>
-                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="createdAt-order-detail-form" type="text" defaultValue={formData ? formData.order.createdAt : ""} />
+                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="createdAt-order-detail-form" type="text" defaultValue={formData ? formData.createdAt : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="expried-order-detail-form" className="font-bold">Hết hạn thanh toán vào: </label>
-                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="expried-order-detail-form" type="text" defaultValue={formData ? formData.order.expriredat : ""} />
+                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="expried-order-detail-form" type="text" defaultValue={formData ? formData.expiredAt : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="coin-order-detail-form" className="font-bold">Coin dược sử dụng: </label>

@@ -19,12 +19,15 @@ import { RiShoppingBag3Fill } from "react-icons/ri";
 import Profile from "./Profile/Proflile";
 import CartSection from "./CartSection/CartSection";
 import OrderSection from "./OrderSection/OrderSection";
+import HistorySection from "./History/HistorySection";
+import RefundRequestSection from "./RefundRequestSection/RefundRequestSection";
 
 const menuItems = [
     { key: "personal", label: "Cá nhân", icon: TbLayoutDashboardFilled },
     { key: "carts", label: "Gior hàng", icon: FaShoppingBag },
     { key: "orders", label: "Đơn hàng", icon: FaBoxArchive },
     { key: "history", label: "Lịch sử", icon: FaUser },
+    { key: "refund", label: "Yêu cầu hoàn trả", icon: FaUser },
 ];
 
 
@@ -46,7 +49,8 @@ export default function CustomerPage() {
                         {activeSection === "personal" && <Profile user={authUser}></Profile>}
                         {activeSection === "carts" && <CartSection></CartSection>}
                         {activeSection === "orders" && <p><OrderSection></OrderSection></p>}
-                        {activeSection === "history" && <p>Lịch sử</p>}
+                        {activeSection === "history" && <p><HistorySection></HistorySection></p>}
+                        {activeSection === "refund" && <p><RefundRequestSection></RefundRequestSection></p>}
                         
                     </main>
                 </div>
