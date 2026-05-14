@@ -20,7 +20,8 @@ import UsersSection from "./UserSection/UserSection";
 import EventsSection from "./EventSection/EventSection";
 import RefundSection from "./RefundSection/RefundSection";
 import OrderSection from "./OrderSection/OrderSection";
-
+import AppContext from "../../AppContext";
+import { useContext } from "react";
 
 const menuItems = [
     { key: "dashboard", label: "Báo cáo", icon: TbLayoutDashboardFilled },
@@ -66,7 +67,7 @@ function Sidebar({ active, setActive }) {
     );
 }
 
-function Topbar({ active, setActive, keyword, setKeyword }) {
+function Topbar({ active, setActive, keyword, setKeyword, authUser }) {
     return (
         <div className="sticky top-0 left-0 z-30 border-b border-violet-100 bg-white/90 backdrop-blur">
             <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
@@ -87,8 +88,8 @@ function Topbar({ active, setActive, keyword, setKeyword }) {
                     <div className="flex items-center gap-3 rounded-2xl border border-violet-100 bg-white px-4 py-2.5 shadow-sm">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700">A</div>
                         <div>
-                            <p className="text-sm font-semibold text-slate-800">Admin</p>
-                            <div className="flex items-center gap-1 text-xs text-slate-500"><IoMail size={12} /> Admin@gmail.com</div>
+                            <p className="text-sm font-semibold text-slate-800">{authUser.username}</p>
+                            <div className="flex items-center gap-1 text-xs text-slate-500"><IoMail size={12} /> {authUser.email}</div>
                         </div>
                     </div>
                 </div>
@@ -109,19 +110,19 @@ function Topbar({ active, setActive, keyword, setKeyword }) {
 }
 
 
-
 export default function Admin() {
     const [active, setActive] = useState("products");
     const [keyword, setKeyword] = useState("");
-    
+    const {authUser} = useContext(AppContext);
 
+    console.log(authUser);
 
     return (
         <Container>
             <div className="flex relative h-screen">
                 <Sidebar active={active} setActive={setActive} />
                 <div className="min-w-0 flex-1 flex flex-col">
-                    <Topbar active={active} setActive={setActive} keyword={keyword} setKeyword={setKeyword} />
+                    <Topbar active={active} setActive={setActive} keyword={keyword} setKeyword={setKeyword} authUser={authUser}/>
                     <main className="space-y-6 p-4 sm:p-6 lg:p-8 flex-1 overflow-hidden">
                         {active === "products" && <ProductsSection keyword={keyword} />}
                         {active === "inventory" && <WareHouseSection keyword={keyword} />}

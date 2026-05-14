@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shop.dto.request.UpdateOrderInforRequest;
 import com.example.shop.dto.response.OrderDTO;
@@ -82,6 +83,7 @@ public class OrderService {
                 .build();
     }
 
+    @Transactional
     public Order createNewOrder(List<Integer> cartItemIds, List<Integer> quantities, User user) {
 
         List<CartItem> cartItems = new ArrayList<>();
@@ -231,6 +233,7 @@ public class OrderService {
         return Converter.convertPriceFromDoubleToLong(1.0 * (totalPrice - order.getCoinUsed()));
     }
 
+    @Transactional
     public Order comfirmPurchasedOrder(Map<String, String> paymentResult) { 
         Integer orderId = Integer.valueOf(paymentResult.get("vnp_TxnRef"));
         Order order = findOrderById(orderId);

@@ -151,7 +151,7 @@ export default function ProductEditForm() {
                                     <textarea name="description" id="description-update-product-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.product.description : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
                                 </div>
 
-                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1">Cập nhập</button>
+                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Cập nhập</button>
                             </div>
                         </section>
 
