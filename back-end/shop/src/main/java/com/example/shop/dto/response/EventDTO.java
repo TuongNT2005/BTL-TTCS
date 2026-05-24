@@ -1,6 +1,5 @@
 package com.example.shop.dto.response;
 
-import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +18,7 @@ public class EventDTO {
     private String title;
     private String image;
     private Integer discount;
-    private LocalDate startAt;
-    private LocalDate endAt;
+    private String startAt;
+    private String endAt;
     private String description;
 }

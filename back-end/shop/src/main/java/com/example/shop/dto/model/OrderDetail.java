@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.Order;
-import com.example.shop.entity.OrderItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

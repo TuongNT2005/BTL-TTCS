@@ -11,56 +11,30 @@ export default function ImportVariantForm() {
 
 
     const { setIsImportFormOpen, setRefreshKey, productList } = useContext(WareHouseSectionContext);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
+    let {token } = useContext(AppContext);
     let [isLoading, setIsLoading] = useState(false);
 
     function closeForm() {
         setIsImportFormOpen(false);
     }
 
-    function validateForm() {
-        let productName = document.getElementById("productId-import-variant-form").value;
-        let size = document.getElementById("size-import-variant-form").value;
-        let color = document.getElementById("color-import-variant-form").value;
-        let quantity = document.getElementById("quantity-import-variant-form").value;
-        let importCost = document.getElementById("cost-import-variant-form").value;
-
-        if(!productName || !size || !color || !quantity || !importCost) {
-            return {
-                isValid: false, message: "Hãy điền đầy đủ thông tin!"
-            }
-        }
-
-        if(quantity <= 0 || importCost <= 0) {
-             return {
-                isValid: false, message: "Số lượng, giá nhập không được nhỏ hơn/ bằng 0!"
-            }
-        }
-
-        if(!productList[productName]) {
-            return {
-                isValid: false, message: "Sản phẩm không tồn tại trong hệ thống! Hãy thử lại hoặc `Tạo sản phẩm mới`!"
-            }
-        }
-        return {
-            isValid: true, productId: productList[productName]
-        }
-    }
+    
 
     async function sendForm(e) {
         e.preventDefault();
 
-        let validateRes = validateForm();
-        if(!validateRes.isValid) {
-            setNotifierData({ isError: true, title: "Lỗi", message: validateRes.message, isOpen: true })
+        const form = document.getElementById("update-product-form");
+        if(!form.checkValidity()) {
+            setNotifierData({ isError: true, title: "Lỗi", message: "Hãy kiểm tra thông tin nhập liệu!", isOpen: true })
             return;
         }
 
-        const form = document.getElementById("update-product-form");
+        const productId = document.getElementById("name-import-variant-form").value;
         const formData = new FormData(form);
-        formData.set("productId", validateRes.productId);
+        formData.set("productId", productId);
         try {
             setIsLoading(true);
             const data = await fetchApiFunc(formData, api.admin.warehouseTab.importProductVariant, "POST", token);
@@ -95,23 +69,23 @@ export default function ImportVariantForm() {
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
                     <form action="" id="update-product-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Form nhập kho</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
                             <div className="flex flex-col h-full justify-center items-start p-2 md:p-5 gap-2">
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="productId-import-variant-form" className="font-bold">Tên sản phẩm: </label>
-                                    <input name="productId" list="list-product" className="border px-1 py-0.5 rounded-lg border-violet-200" id="productId-import-variant-form" type="text" />
-                                    <datalist id="list-product">
+                                    <label htmlFor="name-import-variant-form" className="font-bold">Tên sản phẩm: </label>
+                                    <select required defaultValue={productList[0]} className="text-sm rounded-lg border-violet-200 border" id="name-import-variant-form">
                                         {
-                                            Object.keys(productList).map(k => <option value={k}></option>)
+                                            // Object.keys(productList).map(k => <option value={productList[k]}>{k}</option>)
+                                            productList.map(product => <option value={product.id}>{product.name}</option>)
                                         }
-                                    </datalist>
+                                    </select>
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="size-import-variant-form" className="font-bold">Size: </label>
-                                    <select defaultValue="XL" name="size" className="rounded-lg border-violet-200 border" id="size-import-variant-form">
+                                    <select required defaultValue="XL" name="size" className="text-sm rounded-lg border-violet-200 border" id="size-import-variant-form">
                                         <option className="border rounded-lg border-violet-200" value="S" >S</option>
                                         <option className="border rounded-lg border-violet-200" value="M">M</option>
                                         <option className="border rounded-lg border-violet-200" value="L">L</option>
@@ -122,21 +96,21 @@ export default function ImportVariantForm() {
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="color-import-variant-form" className="font-bold">Màu sắc: </label>
-                                    <input name="color" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập màu sắc..." id="color-import-variant-form" type="text" />
+                                    <input required name="color" className="text-sm border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập màu sắc..." id="color-import-variant-form" type="text" />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="quantity-import-variant-form" className="font-bold">Số lượng nhập: </label>
-                                    <input name="quantity" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập số lượng..." id="quantity-import-variant-form" type="number" />
+                                    <input min={1} required name="quantity" className="text-sm border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập số lượng..." id="quantity-import-variant-form" type="number" />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="cost-import-variant-form" className="font-bold">Gía nhập: </label>
-                                    <input name="importCost" className="border px-1 py-0.5 rounded-lg border-violet-200 italic" placeholder="Nhập giá nhập.." id="cost-import-variant-form" type="number" />
+                                    <input min={1000} required name="importCost" className="text-sm border px-1 py-0.5 rounded-lg border-violet-200 italic" placeholder="Nhập giá nhập.." id="cost-import-variant-form" type="number" />
                                 </div>
-                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1">Cập nhập</button>
+                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Cập nhập</button>
                             </div>
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

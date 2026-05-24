@@ -12,12 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shop.dto.request.UpdateOrderInforRequest;
-import com.example.shop.dto.response.OrderDTO;
-import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.CartItem;
 import com.example.shop.entity.Order;
 import com.example.shop.entity.OrderItem;
-import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
 import com.example.shop.entity.User;
 import com.example.shop.enums.OrderStatus;
@@ -44,44 +41,6 @@ public class OrderService {
     private OrderItemRepository orderItemRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    ColorService colorService;
-
-    public OrderDTO convertToOrderDTO(Order order) {
-
-        User user = userService.findUserById(order.getUserId());
-        List<OrderItem> orderItems = findOrderItemsByOrderId(order.getId());
-        List<OrderItemDTO> orderItemDTOs = new ArrayList<>();
-        for (OrderItem orderItem : orderItems) {
-            orderItemDTOs.add(convertToOrderItemDTO(orderItem));
-        }
-
-        return OrderDTO.builder()
-                .order(order)
-                .createdAt(Converter.formatDateTime(order.getCreatedAt()))
-                .expiredAt(Converter.formatDateTime(order.getExpriredat()))
-                .user(userService.convertToUserDTO(user))
-                .orderItems(orderItemDTOs)
-                .price(calTotalPriceByOrderId(order.getId()))   
-                .build();
-    }
-
-    public OrderItemDTO convertToOrderItemDTO(OrderItem orderItem) {
-        Integer orderItemId = orderItem.getId();
-        Product prodcut = productService.findByOrderItemId(orderItemId);
-        ProductVariant productVariant = productService.findProductVariantById(orderItem.getProductVariantId());
-        String color = colorService.findColorNameById(productVariant.getColorId());
-
-        return OrderItemDTO.builder()
-                .id(orderItem.getId())
-                .discount(orderItem.getDiscount())
-                .image(productVariant.getImage())
-                .orderId(orderItem.getOrderId())
-                .price(orderItem.getPrice())
-                .quantity(orderItem.getQuantity())
-                .productVariantName(prodcut.getName() + " - " + color + " - " + productVariant.getSize().toString())
-                .build();
-    }
 
     @Transactional
     public Order createNewOrder(List<Integer> cartItemIds, List<Integer> quantities, User user) {
@@ -150,15 +109,15 @@ public class OrderService {
         }
     }
 
-    public Page<OrderDTO> findAllOrdersByUser(User user, Integer page) {
+    public Page<Order> findAllOrdersByUser(User user, Integer page) {
         try {
-             Page<Order> orders = orderRepository.findAllByUserId(PageRequest.of(page, ConstantVal.itemPerPage) ,user.getId());
-             return orders.map(order -> convertToOrderDTO(order));
+            Page<Order> orders = orderRepository.findAllByUserId(PageRequest.of(page, ConstantVal.itemPerPage),
+                    user.getId());
+            return orders;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
-       
 
     }
 
@@ -187,6 +146,16 @@ public class OrderService {
         Order order = findOrderById(orderId);
         if (order.getExpriredat().isBefore(LocalDateTime.now()) && order.getStatus() == OrderStatus.PENDING) {
             order.setStatus(OrderStatus.EXPRIED);
+            // Tìm các orderItem ứng với orderId
+            List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
+
+            // Cập nhập số lượng
+            for (OrderItem orderItem : orderItems) {
+                Integer productVariantId = orderItem.getProductVariantId();
+                ProductVariant productVariant = productService.findProductVariantById(productVariantId);
+                productVariant.setQuantity(productVariant.getQuantity() + orderItem.getQuantity());
+                productService.saveProductVariant(productVariant);
+            }
             orderRepository.save(order);
             throw new ActionUnavalibleException(
                     String.format("Đơn hàng với id=%d đã %s", orderId, order.getStatus().toString()));
@@ -234,7 +203,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order comfirmPurchasedOrder(Map<String, String> paymentResult) { 
+    public Order comfirmPurchasedOrder(Map<String, String> paymentResult) {
         Integer orderId = Integer.valueOf(paymentResult.get("vnp_TxnRef"));
         Order order = findOrderById(orderId);
 
@@ -259,25 +228,10 @@ public class OrderService {
         }
     }
 
-    public OrderDTO getOrderDTObyOrderId(Integer orderId) {
-        try {
-            Order order = findOrderById(orderId);
-            return convertToOrderDTO(order);
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
-
-    }
-
-    public Page<OrderDTO> findOrderByStatus(String status, Integer page) {
+    public Page<Order> findOrderByStatus(String status, Integer page) {
         try {
             Page<Order> orders = orderRepository.findAllByStatus(PageRequest.of(page, ConstantVal.itemPerPage), status);
-            Page<OrderDTO> orderDTOs = orders.map(order -> {
-                return convertToOrderDTO(order);
-            });
-            return orderDTOs;
+            return orders;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
@@ -307,15 +261,16 @@ public class OrderService {
 
         try {
 
-            if(request.getUsedCoin()==null || request.getAddress()==null || request.getAddress().trim().equals("") || request.getPhone()==null || request.getPhone().trim().equals("")) {
+            if (request.getUsedCoin() == null || request.getAddress() == null || request.getAddress().trim().equals("")
+                    || request.getPhone() == null || request.getPhone().trim().equals("")) {
                 throw new ActionUnavalibleException("Thông tin không đầy đủ!");
             }
 
-            if(request.getUsedCoin() > user.getCoin()) {
+            if (request.getUsedCoin() > user.getCoin()) {
                 throw new ActionUnavalibleException("Số coin của bạn không đủ!");
             }
 
-            if(request.getUsedCoin() < 0) {
+            if (request.getUsedCoin() < 0) {
                 throw new ActionUnavalibleException("Số coin ko được âm!");
             }
 
@@ -335,14 +290,35 @@ public class OrderService {
         }
     }
 
-    public Page<OrderItemDTO> findAllBoughtItemByUserId(Integer userId, Integer page) {
+    public Page<OrderItem> findAllBoughtItemByUserId(Integer userId, Integer page) {
         try {
-            Page<OrderItem> orderItems = orderItemRepository.findAllBoughtItemByUserId(userId, PageRequest.of(page, ConstantVal.itemPerPage));
-            Page<OrderItemDTO> orderItemDtos = orderItems.map(orderItem -> convertToOrderItemDTO(orderItem));
-            return orderItemDtos;
+            Page<OrderItem> orderItems = orderItemRepository.findAllBoughtItemByUserId(userId,
+                    PageRequest.of(page, ConstantVal.itemPerPage));
+            return orderItems;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
     }
+
+    public void scanAndCancelExpiredOrders() {
+        List<Order> expiredOrders = orderRepository.findByStatusAndExpriredatBefore(OrderStatus.PENDING,
+                LocalDateTime.now());
+        for (Order order : expiredOrders) {
+
+            order.setStatus(OrderStatus.EXPRIED);
+
+            List<OrderItem> orderItems = findOrderItemsByOrderId(order.getId());
+
+            for (OrderItem orderItem : orderItems) {
+                Integer productVariantId = orderItem.getProductVariantId();
+                ProductVariant productVariant = productService.findProductVariantById(productVariantId);
+                productVariant.setQuantity(productVariant.getQuantity() + orderItem.getQuantity());
+                productService.saveProductVariant(productVariant);
+            }
+
+            orderRepository.save(order);
+        }
+    }
+
 }

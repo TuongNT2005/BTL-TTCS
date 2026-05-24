@@ -20,11 +20,13 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
         public Optional<ProductVariant> findByProductIdAndColorIdAndSize(Integer productId, Integer colorId,
                         Size size);
 
-        @Query(value = "SELECT a.* FROM PRODUCTVARIANT a LEFT JOIN PRODUCT b ON a.productId = b.id WHERE b.NAME LIKE CONCAT('%', :keyword, '%')", countQuery = "SELECT COUNT(*) FROM PRODUCTVARIANT a LEFT JOIN PRODUCT b ON a.productId = b.id WHERE b.NAME LIKE CONCAT('%', :keyword, '%')", nativeQuery = true)
+        @Query( value = "SELECT a.* FROM PRODUCTVARIANT a LEFT JOIN PRODUCT b ON a.productId = b.id WHERE b.NAME LIKE CONCAT('%', :keyword, '%') ORDER BY b.name", 
+                countQuery = "SELECT COUNT(*) FROM PRODUCTVARIANT a LEFT JOIN PRODUCT b ON a.productId = b.id WHERE b.NAME LIKE CONCAT('%', :keyword, '%') ORDER BY b.name", 
+                nativeQuery = true)
         Page<ProductVariant> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
         @Query(value = "SELECT a.* FROM PRODUCTVARIANT a LEFT JOIN ORDERITEM b ON a.id = b.productVariantId WHERE b.id = :orderItemId", nativeQuery = true)
-        public Optional<ProductVariant> findByOrderitemId(@Param(value="orderItemId") Integer orderItemId);
+        public Optional<ProductVariant> findByOrderitemId(@Param(value = "orderItemId") Integer orderItemId);
 
         public List<ProductVariant> findAllByProductId(Integer productId);
 

@@ -1,11 +1,10 @@
 import "tailwindcss";
 import { Routes, Route } from 'react-router-dom';
 import './App.css'
-import LoginForm from "./components/organism/LoginForm/LoginForm";
-import LoginPage from "./components/template/LoginPage/LoginPage";
-import RegistrationPage from "./components/template/RegistrationPage/RegistrationPage";
+import LoginPage from "./pages/Login/LoginPage";
+import RegistrationPage from "./pages/Registration/RegistrationPage";
 import AppContext from "./AppContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminPage from "./components/template/AdminPage/AdminPage";
 import AdminPageProductTab from "./components/template/AdminProductTab/AdminProductTab";
 import AdminProductCVariantTab from "./components/template/AdminProductVariantTab/AdminProductVariantTab";
@@ -15,13 +14,28 @@ import CustomerPage from "./pages/Customer/CustomerPage";
 
 function App() {
 
-  let [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
-  let [isLoading, setIsLoading] = useState(false);
-  let [token, setToken] = useState("");
-  let [authUser, setAuthUser] = useState(null);
+  const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
+  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState("");
+  const authUser = JSON.parse(localStorage.getItem('authUser'));
+
+  useEffect(() => {
+    // Hàm xử lý khi nghe thấy tín hiệu từ util.js
+    const handleTokenRefresh = (event) => {
+      const newToken = event.newToken; 
+      setToken(newToken); 
+      console.log("Đã cập nhật token mới thành công!");
+    };
+
+    window.addEventListener('onTokenRefreshed', handleTokenRefresh);
+
+    return () => {
+      window.removeEventListener('onTokenRefreshed', handleTokenRefresh);
+    };
+  }, []);
 
   return (
-    <AppContext.Provider value={{...notifierData, setNotifierData, token, setToken, isLoading, setIsLoading, authUser, setAuthUser}}>
+    <AppContext.Provider value={{ ...notifierData, setNotifierData, token, setToken, isLoading, setIsLoading, authUser}}>
       <>
         <Routes>
           <Route index element={<LoginPage />} />

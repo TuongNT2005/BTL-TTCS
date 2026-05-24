@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import com.example.shop.dto.request.LoginRequest;
 import com.example.shop.dto.response.LoginResponse;
 import com.example.shop.entity.User;
+import com.example.shop.mapper.UserMapper;
 import com.example.shop.repository.UserRepository;
-import com.example.shop.util.Converter;
 import com.example.shop.util.RedisConnection;
 import com.nimbusds.jwt.SignedJWT;
 
@@ -27,9 +27,9 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private UserService userService;
-    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserMapper userMapper;
 
     public LoginResponse login(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
@@ -48,7 +48,7 @@ public class AuthService {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .user(userService.convertToUserDTO(user))
+                .user(userMapper.toUserDTO(user))
                 .build();
     }
 
@@ -61,6 +61,27 @@ public class AuthService {
             String key = (String) signedJWT.getJWTClaimsSet().getJWTID();
             Long val = (Long) signedJWT.getJWTClaimsSet().getClaim("userId");
             RedisConnection.saveToRedis(key, String.valueOf(val), remainingJwtTokenTime);
+        }
+    }
+
+    public String renewAccessToken(String refreshToken) {
+        try {
+            System.out.println(refreshToken);
+            if(refreshToken == null || !jwtService.verifyToken(refreshToken)) {
+                throw new RuntimeException("RefreshToken không hợp lệ!");
+            }
+
+            SignedJWT signedJWT = SignedJWT.parse(refreshToken);
+            Integer userId = signedJWT.getJWTClaimsSet().getIntegerClaim("userId");
+            User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+            String newAccessToken = jwtService.generateAccessToken(user);
+
+            System.out.println("AccessToẹn Mới: " + newAccessToken);
+
+            return newAccessToken;
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -77,7 +98,7 @@ public class AuthService {
 
     public User getAuthenticatedUser() {
         Integer userId = getAuthenticatedUserId();
-        return userService.findUserById(userId);
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User không tồn tại!"));
     }
 
 }

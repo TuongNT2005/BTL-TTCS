@@ -2,7 +2,7 @@ import { useEffect, useContext, useRef } from "react"
 import { fetchApiFunc, genID } from "../../../util"
 import AppContext from "../../../AppContext"
 import { useState } from "react"
-import { getImgPath } from "../../../util"
+import { getImgPath} from "../../../util"
 import { IoCloseSharp } from "react-icons/io5";
 import Loading from "../../Global/Loading/Loading"
 import Notifier from "../../Global/Notifier/Notifier"
@@ -40,11 +40,20 @@ export default function ProductEditForm() {
         setFormData(null);
         setEditFormState({ isEditFormOpen: false, productId: 1 });
     }
-
     async function sendForm(e) {
-        console.log("tôi mệt v");
+
         e.preventDefault();
         const form = document.getElementById("update-product-form");
+        if(!form.checkValidity()) {
+             setNotifierData({
+                isError: true,
+                title: "Lỗi!",
+                message: "Hãy nhập đầy đủ thông tin!",
+                isOpen: true
+            });
+            return;
+        }
+
         const formData = new FormData(form);
         try {
             setIsLoading(true);
@@ -98,7 +107,6 @@ export default function ProductEditForm() {
                     });
                 } finally {
                     setIsLoading(false);
-                    // con
                 }
             }
 
@@ -132,30 +140,30 @@ export default function ProductEditForm() {
                             <div className="flex flex-col h-full justify-center items-start p-2 md:p-5 gap-2">
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="id-update-product-form" className="font-bold">Mã sản phẩm: </label>
-                                    <input name="id" className="border px-1 py-0.5 rounded-lg border-violet-200" readOnly id="id-update-product-form" type="text" defaultValue={formData ? formData.product.id : ""} />
+                                    <input required name="id" className="border px-1 py-0.5 rounded-lg border-violet-200" readOnly id="id-update-product-form" type="text" defaultValue={formData ? formData.product.id : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="name-update-product-form" className="font-bold">Tên sản phẩm: </label>
-                                    <input name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="name-update-product-form" type="text" defaultValue={formData ? formData.product.name : ""} />
+                                    <input required name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="name-update-product-form" type="text" defaultValue={formData ? formData.product.name : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="category" className="font-bold">Phân loại: </label>
                                     {/* <input className="border px-1 py-0.5" id="category" type="text" defaultValue={formData ? formData.product.category : ""} /> */}
-                                    <select id="category-update-product-form" name="category" defaultValue={formData ? formData.product.category : ""} className="border rounded-lg border-violet-200">
+                                    <select required id="category-update-product-form" name="category" defaultValue={formData ? formData.product.category : ""} className="border rounded-lg border-violet-200">
                                         {formData && formData.categories.map(category => <option className="rounded-lg border-violet-200" key={genID()} value={category}>{category}</option>)}
                                     </select>
                                 </div>
 
                                 <div className="flex flex-col justify-center items-start w-full">
                                     <label htmlFor="description-update-product-form" className="font-bold">Mô tả sản phẩm: </label>
-                                    <textarea name="description" id="description-update-product-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.product.description : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
+                                    <textarea required name="description" id="description-update-product-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.product.description : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
                                 </div>
 
                                 <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Cập nhập</button>
                             </div>
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

@@ -1,7 +1,6 @@
 package com.example.shop.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,10 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.shop.dto.request.CreateRefundRequest;
 import com.example.shop.dto.request.HandleRefundRequest;        
-import com.example.shop.dto.response.ProductVariantDTO;
-import com.example.shop.dto.response.RefundRequestDTO;
 import com.example.shop.entity.OrderItem;
-import com.example.shop.entity.ProductVariant;
 import com.example.shop.entity.RefundRequest;
 import com.example.shop.entity.User;
 import com.example.shop.enums.RefundStatus;
@@ -21,7 +17,6 @@ import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.exception.NotFoundException;
 import com.example.shop.repository.RefundRequestRepository;
 import com.example.shop.util.ConstantVal;
-import com.example.shop.util.Converter;
 import com.example.shop.util.FileUtil;
 
 @Service
@@ -33,25 +28,7 @@ public class RefundService {
     private RefundRequestRepository refundRequestRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private ProductService productService;
 
-    public RefundRequestDTO convertToRefundRequestDTO(RefundRequest refundRequest) {
-
-        User user = userService.findUserById(refundRequest.getUserId());
-        ProductVariant productVariant = productService.findProductVariantByOrderItemId(refundRequest.getOrderItemId());
-        ProductVariantDTO productVariantDTO = productService.convertToProductVariantDTO(productVariant);
-
-        return RefundRequestDTO.builder()
-                .id(refundRequest.getId())
-                .username(user.getUsername())
-                .productName(productVariantDTO.getName())
-                .image(refundRequest.getImage())
-                .reason(refundRequest.getReason())
-                .status(refundRequest.getStatus().toString())
-                .createdAt(Converter.formatDateTime(refundRequest.getCreatedAt()))
-                .build();
-    }
 
     public void checkCreateRefundRequestConditions(CreateRefundRequest request) {
         try {
@@ -185,4 +162,5 @@ public class RefundService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
 }

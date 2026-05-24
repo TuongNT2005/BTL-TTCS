@@ -21,7 +21,7 @@ export default function RefundRequestItem({ item, onOpenDetailForm}) {
                 <p><span className="font-semibold">Tạo lúc:</span> {item.createdAt}</p>
             </div>
 
-            <button id={item.id} className="mt-2 w-fit rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700" onClick={onOpenDetailForm}>Xem chi tiết</button>
+            <button id={item.id} className="mt-2 w-fit rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 cursor-pointer" onClick={onOpenDetailForm}>Xem chi tiết</button>
 
         </div>
     );

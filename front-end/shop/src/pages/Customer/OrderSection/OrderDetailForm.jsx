@@ -10,6 +10,7 @@ import OrderSectionContext from "./OrderSectionContext"
 import api from "../../../api"
 import Table from "../../Admin/Table"
 import Badge from "../../Global/Bagde/Bagde"
+import { formattedVND } from "../../../util"
 
 
 
@@ -174,12 +175,12 @@ export default function OrderDetailForm() {
                                     <input name="phone" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="phone-order-detail-form" type="text" defaultValue={formData ? formData.order.phone : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="createdAt-order-detail-form" className="font-bold">Tạo vào: </label>
-                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="createdAt-order-detail-form" type="text" defaultValue={formData ? formData.createdAt : ""} />
+                                    <label htmlFor="createdAt-order-detail-form" className="font-bold">Tạo lúc: </label>
+                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="createdAt-order-detail-form" type="text" defaultValue={formData ? formData.order.createdAt : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="expried-order-detail-form" className="font-bold">Hết hạn thanh toán vào: </label>
-                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="expried-order-detail-form" type="text" defaultValue={formData ? formData.expiredAt : ""} />
+                                    <label htmlFor="expried-order-detail-form" className="font-bold">Hết hạn lúc: </label>
+                                    <input disabled readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="expried-order-detail-form" type="text" defaultValue={formData ? formData.order.expriredat : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="coin-order-detail-form" className="font-bold">Coin dược sử dụng: </label>
@@ -209,12 +210,12 @@ export default function OrderDetailForm() {
                                                 <td className="px-4 py-4">{r.productVariantName}</td>
                                                 <td className="px-4 py-4">{r.discount}</td>
                                                 <td className="px-4 py-4">{r.quantity}</td>
-                                                <td className="px-4 py-4">{r.price}</td>
-                                                <td className="px-4 py-4">{r.quantity * r.price}</td>
+                                                <td className="px-4 py-4">{formattedVND.format(r.price)}</td>
+                                                <td className="px-4 py-4">{formattedVND.format(r.quantity * r.price)}</td>
                                             </tr>
                                         ))} />
 
-                                    <p className="font-bold my-3 md:my-5">Tổng cộng: {formData.price}</p>
+                                    <p className="font-bold my-3 md:my-5">Tổng cộng: {formattedVND.format(formData.order.price)}</p>
                                     <div className="w-full flex flex-col gap-2">
                                         {
                                             formData.order.status === "PENDING" ? <>
@@ -231,7 +232,7 @@ export default function OrderDetailForm() {
                             }
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

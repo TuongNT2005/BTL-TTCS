@@ -100,6 +100,14 @@ public class ProductService {
     }
 
     public Product createNewProduct(CreateProductRequest request) {
+
+        if( request.getName() == null || 
+            request.getDescription() == null ||
+            request.getCategory() == null ||
+            request.getImg() == null) {
+                throw new ActionUnavalibleException("Hãy nhập đầy đủ thông tin!");
+            }
+
         checkDuplicateProduct(request.getName(), request.getCategory());
 
         try {
@@ -120,6 +128,12 @@ public class ProductService {
     }
 
     public Product updateProduct(UpdateProductRequest request) {
+
+        if( request.getName() == null || 
+            request.getDescription() == null ||
+            request.getCategory() == null) {
+                throw new ActionUnavalibleException("Hãy nhập đầy đủ thông tin!");
+            }
 
         Product product = findProductById(request.getId());
         checkDuplicateProduct(request.getName(), request.getCategory(), request.getId());
@@ -144,6 +158,13 @@ public class ProductService {
     }
 
     public ProductVariant updateProductVariant(UpdateProductVariantRequest request) {
+
+        if( request.getId() == null ||
+            request.getStatus() == null ||
+            request.getPurchasePrice() == null || request.getPurchasePrice() <= 0) {
+                throw new ActionUnavalibleException("Hãy nhập đầy đủ thông tin! Gía bán phải > 0!");
+            }
+
         try {
             ProductVariant productVariant = findProductVariantById(request.getId());
             if (FileUtil.isFilePresent(request.getImg())) {
@@ -224,4 +245,5 @@ public class ProductService {
                 .productVariants(productVariantDTOs)
                 .build();
     }
+
 }

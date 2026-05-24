@@ -11,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,15 +23,14 @@ import com.example.shop.dto.request.CreateProductRequest;
 import com.example.shop.dto.request.UpdateProductRequest;
 import com.example.shop.dto.request.UpdateProductVariantRequest;
 import com.example.shop.dto.response.CreateProductResponse;
-import com.example.shop.dto.response.ProductDTO;
+import com.example.shop.dto.response.ProductDetailDTO;
+import com.example.shop.dto.response.ProductSimpleDTO;
 import com.example.shop.dto.response.ProductVariantDTO;
 import com.example.shop.entity.Product;
 import com.example.shop.entity.ProductVariant;
-import com.example.shop.service.ColorService;
-import com.example.shop.service.EventService;
+import com.example.shop.mapper.ProductMapper;
 import com.example.shop.service.ProductService;
 import com.example.shop.util.ConstantVal;
-import com.example.shop.util.Converter;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,12 +41,34 @@ public class ProductController {
 
         @Autowired
         private ProductService productService;
-        @Autowired
-        private ColorService colorService;
-        @Autowired
-        private EventService eventService;
 
-        @GetMapping("/search")
+        @Autowired
+        private ProductMapper productMapper;
+
+        // @GetMapping("/search")
+        // public ResponseEntity<?> searchProduct(
+        //                 @RequestParam(name = "keyword") String keyword,
+        //                 @RequestParam(name = "page") Integer page,
+        //                 @RequestParam(name = "category") String category) {
+
+        //         Page<Product> res = productService.searchProduct(
+        //                         keyword, category,
+        //                         PageRequest.of(page - 1, ConstantVal.itemPerPage));
+
+        //         Page<ProductDTO> products = res.map(product -> {
+        //                 return productService.convertToProductDTO(product);
+        //         });
+
+        //         ApiResponse<Page<ProductDTO>> response = ApiResponse.<Page<ProductDTO>>builder()
+        //                         .code(200)
+        //                         .message("Lấy dữ liệu thành công!")
+        //                         .data(products)
+        //                         .build();
+
+        //         return ResponseEntity.ok(response);
+        // }
+
+         @GetMapping("/search")
         public ResponseEntity<?> searchProduct(
                         @RequestParam(name = "keyword") String keyword,
                         @RequestParam(name = "page") Integer page,
@@ -59,11 +78,11 @@ public class ProductController {
                                 keyword, category,
                                 PageRequest.of(page - 1, ConstantVal.itemPerPage));
 
-                Page<ProductDTO> products = res.map(product -> {
-                        return productService.convertToProductDTO(product);
+                Page<ProductDetailDTO> products = res.map(product -> {
+                        return productMapper.toProductDetailDTO(product);
                 });
 
-                ApiResponse<Page<ProductDTO>> response = ApiResponse.<Page<ProductDTO>>builder()
+                ApiResponse<Page<ProductDetailDTO>> response = ApiResponse.<Page<ProductDetailDTO>>builder()
                                 .code(200)
                                 .message("Lấy dữ liệu thành công!")
                                 .data(products)
@@ -101,9 +120,6 @@ public class ProductController {
 
         @GetMapping("/products")
         public ResponseEntity<?> getAllProducts() {
-                // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                // System.out.println("Authorities: " + authentication.getAuthorities());
-
                 List<Product> products = productService.getAllProducts();
                 ApiResponse<List<Product>> response = ApiResponse.<List<Product>>builder()
                                 .code(200)
@@ -138,8 +154,24 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.OK).body(response);
         }
 
+        @GetMapping("/simple-products")
+        public ResponseEntity<?>  getSimpleProducts() {
+
+                List<Product> products = productService.getAllProducts();
+                List<ProductSimpleDTO> simpleProducts = products.stream().map((product) -> productMapper.toProductSimpleDTO(product)).toList();
+
+                ApiResponse<List<ProductSimpleDTO>> response = ApiResponse.<List<ProductSimpleDTO>>builder()
+                                                                .code(200)
+                                                                .data(simpleProducts)
+                                                                .message("Lấy dữ liệu thành công!")
+                                                                .build();
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        
+
         @GetMapping("/product-variants")
-        public ResponseEntity<?> findProductVariants(
+        public ResponseEntity<?> getProductVariants(
                         @RequestParam(name = "keyword") String keyword,
                         @RequestParam(name = "page") Integer page) {
                 Page<ProductVariant> res = productService.getAllProductVariant(
@@ -147,26 +179,13 @@ public class ProductController {
                                 PageRequest.of(page - 1, ConstantVal.itemPerPage));
 
                 Page<ProductVariantDTO> productVariants = res.map(productVariant -> {
-                        // Product product = productService.findProductById(productVariant.getProductId());
-                        // return Converter.convertProductToProductVariantDTO(productVariant, product, colorService,
-                        //                 eventService);
-                        return productService.convertToProductVariantDTO(productVariant);
+                        return productMapper.toProductVariantDTO(productVariant);
                 });
 
-                Map<String, Integer> productList = new TreeMap<>();
-                List<Product> products = productService.getAllProducts();
-                for (Product product : products) {
-                        productList.put(product.getName(), product.getId());
-                }
-
-                Map<String, Object> data = new TreeMap<>();
-                data.put("productVariants", productVariants);
-                data.put("productList", productList);
-
-                ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+                ApiResponse<Page<ProductVariantDTO>> response = ApiResponse.<Page<ProductVariantDTO>>builder()
                                 .code(200)
                                 .message("Lấy dữ liệu thành công!")
-                                .data(data)
+                                .data(productVariants)
                                 .build();
 
                 return ResponseEntity.status(HttpStatus.OK).body(response);

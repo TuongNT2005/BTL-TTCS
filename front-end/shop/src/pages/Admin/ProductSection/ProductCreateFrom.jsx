@@ -1,6 +1,6 @@
 import { useEffect, useContext, useRef } from "react"
 import ProductSectionContext from "./ProductSectionContext"
-import { fetchApiFunc, genID, isFieldsFilled } from "../../../util"
+import { fetchApiFunc, genID} from "../../../util"
 import api from "../../../api"
 import AppContext from "../../../AppContext"
 import { useState } from "react"
@@ -39,26 +39,21 @@ export default function ProductCreateForm() {
         setIsCreateFormOpen(false);
     }
 
+    async function sendForm(e) {
+        e.preventDefault();
+        
+        console.log("hellp");
+        const form = document.getElementById("create-product-form");
 
-    function validateCreateForm(form) {
-        if (!isFieldsFilled(form)) {
+        if(!form.checkValidity()) {
             setNotifierData({
                 isError: true,
                 title: "Lỗi!",
                 message: "Hãy nhập đầy đủ thông tin!",
                 isOpen: true
             });
-            return false;
+            return;
         }
-        return true;
-    }
-
-    async function sendForm(e) {
-        e.preventDefault();
-        
-        console.log("hellp");
-        const form = document.getElementById("create-product-form");
-        if(!validateCreateForm(form)) return;
 
         const formData = new FormData(form);
         try {
@@ -107,7 +102,7 @@ export default function ProductCreateForm() {
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
                             <div>
                                 <img src={image} alt="image" className="w-2xs md:w-xs m-2" />
-                                <input name="img" id="img-product-create-form" type="file" accept="image/*" onChange={handleCreateFormChangeImage} className="hidden" />
+                                <input required name="img" id="img-product-create-form" type="file" accept="image/*" onChange={handleCreateFormChangeImage} className="hidden" />
                                 <div className="flex justify-center items-center gap-1">
                                     <label htmlFor="img-product-create-form">
                                         <div className="w-max bg-green-500 hover:bg-green-600 cursor-pointer rounded-sm text-white px-1 py-0.5 md:px-2 md:py-1">Tải ảnh</div>
@@ -118,12 +113,12 @@ export default function ProductCreateForm() {
                             <div className="flex flex-col h-full justify-center items-start p-2 md:p-5 gap-2">
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="name" className="font-bold">Tên sản phẩm: </label>
-                                    <input name="name" className="rounded-lg border-violet-200 border px-1 py-0.5" placeholder="Nhập tên sản phẩm..." id="name-product-create-form" type="text" />
+                                    <input required name="name" className="rounded-lg border-violet-200 border px-1 py-0.5" placeholder="Nhập tên sản phẩm..." id="name-product-create-form" type="text" />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="category" className="font-bold">Phân loại: </label>
                                     {/* <input className="border px-1 py-0.5" id="category" type="text" defaultValue={formData ? formData.product.category : ""} /> */}
-                                    <select defaultValue="PAINTS" name="category" className="rounded-lg border-violet-200 border">
+                                    <select required defaultValue="PAINTS" name="category" className="rounded-lg border-violet-200 border">
                                         <option className="border rounded-lg border-violet-200" value="PANTS" >PANTS</option>
                                         <option className="border rounded-lg border-violet-200" value="DRESS">DRESS</option>
                                         <option className="border rounded-lg border-violet-200" value="SET">SET</option>
@@ -134,14 +129,14 @@ export default function ProductCreateForm() {
 
                                 <div className="flex flex-col justify-center items-start w-full">
                                     <label htmlFor="description" className="font-bold">Mô tả sản phẩm: </label>
-                                    <textarea name="description" id="description-product-create-form" type="text" placeholder="Nhập mô tả..." className="resize-y outline-none h-32 w-full p-1 rounded-lg border-violet-200 border" />
+                                    <textarea required name="description" id="description-product-create-form" type="text" placeholder="Nhập mô tả..." className="resize-y outline-none h-32 w-full p-1 rounded-lg border-violet-200 border" />
                                 </div>
 
                                 <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1">Cập nhập</button>
                             </div>
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

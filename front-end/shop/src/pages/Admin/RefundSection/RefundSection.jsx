@@ -19,7 +19,7 @@ import RefundRequestDetailForm from "./RefundRequestDetailForm";
 
 export default function RefundSection({ keyword }) {
 
-    const {token } = useContext(AppContext);
+    const { token } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, refundRequestId: 1 });
     const [refreshKey, setRefreshKey] = useState("");
@@ -50,7 +50,7 @@ export default function RefundSection({ keyword }) {
         setCurPage(clickedPageNumber);
     }, [])
 
-    let onChangeFilterStatus = useCallback(function(e) {
+    let onChangeFilterStatus = useCallback(function (e) {
         let chosenStatus = e.target.value;
         setStatusFilter(chosenStatus);
     }, [])
@@ -84,8 +84,13 @@ export default function RefundSection({ keyword }) {
         fetchData();
     }, [searchData, refreshKey])
 
+    // Reset page khi keyword thay đổi
+    useEffect(() => {
+        setCurPage(1);
+    }, [keyword]);
 
-    return <RefundSectionContext.Provider value={{...detailFormState ,setRefreshKey, setDetailFormState}}>
+
+    return <RefundSectionContext.Provider value={{ ...detailFormState, setRefreshKey, setDetailFormState }}>
         {detailFormState.isDetailFormOpen ? <RefundRequestDetailForm></RefundRequestDetailForm> : <></>}
         {
             !detailFormState.isDetailFormOpen && isLoading ? <Loading></Loading> :
@@ -102,22 +107,23 @@ export default function RefundSection({ keyword }) {
                     </div>
                     {
                         refundRequests.length == 0 ? <NotFoundData></NotFoundData> :
-                        <Card className="h-full flex flex-col justify-between" title="Hoàn tiền">
-                        <Table
-                            columns={["ID", "Username", "Sản phẩm", "Ngày tạo", "Trạng thái", "Hành động"]}
-                            rows={refundRequests.map((r) => (
-                                <tr key={r.id}>
-                                    <td className="px-4 py-4 font-medium">{r.id}</td>
-                                    <td className="px-4 py-4 font-medium">{r.username}</td>
-                                    <td className="px-4 py-4">{r.productName}</td>
-                                    <td className="px-4 py-4">{r.createdAt}</td>
-                                    <td className="px-4 py-4"><Badge value={r.status} /></td>
-                                    <td className="px-4 py-4"><ActionButtons id={r.id} onOpenDetailForm={onOpenDetailForm} /></td>
-                                </tr>
-                            ))}
-                        />
-                        <Pagination currentPage={curPage} totalPage={totalPage} numberPerLine={5} onGoClickPage={onGoClickPage} onGoNextPage={onGoNextPage} onGoPrevPage={onGoPrevPage} />
-                    </Card>
+                            <Card className="h-full flex flex-col justify-start" title="Hoàn tiền">
+                                <Table
+                                    className="overflow-scroll flex-1 w-full hide-scrollbar"
+                                    columns={["ID", "Username", "Sản phẩm", "Ngày tạo", "Trạng thái", "Hành động"]}
+                                    rows={refundRequests.map((r) => (
+                                        <tr key={r.id}>
+                                            <td className="px-4 py-4 font-medium">{r.id}</td>
+                                            <td className="px-4 py-4 font-medium">{r.username}</td>
+                                            <td className="px-4 py-4">{r.productName}</td>
+                                            <td className="px-4 py-4">{r.createdAt}</td>
+                                            <td className="px-4 py-4"><Badge value={r.status} /></td>
+                                            <td className="px-4 py-4"><ActionButtons id={r.id} onOpenDetailForm={onOpenDetailForm} /></td>
+                                        </tr>
+                                    ))}
+                                />
+                                <Pagination currentPage={curPage} totalPage={totalPage} numberPerLine={5} onGoClickPage={onGoClickPage} onGoNextPage={onGoNextPage} onGoPrevPage={onGoPrevPage} />
+                            </Card>
                     }
                 </div>
         }

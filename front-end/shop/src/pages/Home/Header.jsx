@@ -3,6 +3,7 @@ import { IoIosSearch } from "react-icons/io";
 import { IoMenuSharp } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useCallback, useRef } from "react";
 
 export default function Header({ keyword, setKeyword, mobileMenuOpen, setMobileMenuOpen, setIsSearching }) {
   const navItems = ["Tìm kiếm", "Thể loại", "Sự kiện", "Hot", "Mới"];
@@ -11,6 +12,15 @@ export default function Header({ keyword, setKeyword, mobileMenuOpen, setMobileM
   function onGoToCustomerPage() {
     navigate("/customer");
   }
+
+  const timer = useRef(null);
+
+  const debound = useCallback((e) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      setKeyword(e.target.value);
+    }, 500)
+  }, [setKeyword])
 
   return (
     <header className="sticky top-0 z-50 border-b border-violet-100 bg-white/90 backdrop-blur">
@@ -44,16 +54,12 @@ export default function Header({ keyword, setKeyword, mobileMenuOpen, setMobileM
             <div className="hidden items-center rounded-2xl border border-violet-200 bg-violet-50 px-3 md:flex">
               <IoIosSearch size={18} className="text-violet-500" />
               <input
-                value={keyword}
-                onChange={(e) => {
-                  setKeyword(e.target.value)
-                  setIsSearching(true)
-                }}
+                onChange={debound}
                 placeholder="Tìm sản phẩm..."
                 className="h-10 w-52 bg-transparent px-2 text-sm outline-none lg:w-64"
               />
             </div>
-            <button className="rounded-2xl bg-violet-600 p-2.5 text-white shadow-sm" onClick={onGoToCustomerPage}>
+            <button className="rounded-2xl bg-violet-600 p-2.5 text-white shadow-sm cursor-pointer" onClick={onGoToCustomerPage}>
               <FaUser size={18} />
             </button>
           </div>
@@ -66,8 +72,8 @@ export default function Header({ keyword, setKeyword, mobileMenuOpen, setMobileM
               <input
                 value={keyword}
                 onChange={(e) => {
-                    setKeyword(e.target.value)
-                    setIsSearching(true)
+                  setKeyword(e.target.value)
+                  setIsSearching(true)
                 }}
                 placeholder="Tìm sản phẩm..."
                 className="h-10 w-full bg-transparent px-2 text-sm outline-none"

@@ -1,4 +1,3 @@
-
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import api from "./api";
@@ -11,21 +10,57 @@ export function cn(...inputs) {
 export async function fetchApiFunc(data = null, apiUrl, apiMethod, token = "") {
 
   let method = apiMethod.toUpperCase();
+  let newToken = "";
+  let response = null;
+  let result = null;
+  let options = {};
 
-  let options = {
+  options = {
     method: method,
     headers: {
       Authorization: token === "" ? token : `Bearer ${token}`,
-    }
+    },
+    credentials: 'include'
   }
 
   if (method !== "GET" && data !== null) {
     options.body = data;
   }
 
-  const response = await fetch(apiUrl, options);
 
-  const result = await response.json();
+  response = await fetch(apiUrl, options);
+
+  if (response.status === 401) {
+    let options_ = {
+      method: "GET",
+      credentials: 'include'
+    }
+    const renewTokenResponse = await fetch(api.renewToken, options_);
+
+    if (renewTokenResponse.status !== 200) {
+      // window.location.href = '/';
+      return;
+    }
+
+    const renewTokenResult = await renewTokenResponse.json();
+    newToken = renewTokenResult.data;
+
+    // Tạo ra 1 event để component react bắt
+    const event = new CustomEvent('onTokenRefreshed', { newToken: newToken });
+    window.dispatchEvent(event);
+
+    options = {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${newToken}`,
+      },
+      credentials: 'include'
+    }
+    response = await fetch(apiUrl, options);
+  }
+
+  result = await response.json();
+
   return result;
 }
 
@@ -63,8 +98,8 @@ export function removeFieldFromArray(arr, fields) {
 export function parseDate(dateStr) {
   const chars = ['-', '/'];
   for (let c of chars) {
-    const [year, month, day] = dateStr.split(c);
-    if (!year || !month || !day) continue;
+    const [day, month, year] = dateStr.split(c);
+    if (!day || !month || !year) continue;
     return new Date(year, month - 1, day);
   }
 
@@ -73,10 +108,19 @@ export function parseDate(dateStr) {
 
 
 export function formatDate(dateStr) {
+  // from 2012-10-11 --> 11/10/2012
   if (!dateStr) return "";
   const [year, month, day] = dateStr.split('-');
   return day + "/" + month + "/" + year;
 }
+
+export function formatDateInput(dateStr) {
+  // from 11/10/2012 --> 2012-10-11
+  if (!dateStr) return "";
+  const [day, month, year] = dateStr.split('/');
+  return year + "-" + month + "-" + day;
+}
+
 
 export function isFieldsFilled(form, exeptionIds = {}) {
   const inputs = [...form.querySelectorAll("input")];
@@ -99,3 +143,8 @@ export function getEventBadgeValue(start, end) {
   const now = new Date();
   return now < startAt_ ? "COMING" : (startAt_ <= now && now < endAt_) ? "AVALIBLE" : "UNAVALIBLE";
 }
+
+export const formattedVND = new Intl.NumberFormat('vi-VN', {
+  style: 'currency',
+  currency: 'VND'
+})

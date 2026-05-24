@@ -93,7 +93,7 @@ export default function RefundRequestSection() {
                     <>
                         <div className="w-full flex flex-row justify-start mb-5">
                             <label htmlFor="status" className="font-bold">Trạng thái: </label>
-                            <select name="status" id="status" className="mr-auto" onChange={onChangeStatus}>
+                            <select name="status" id="status" defaultValue={status ? status : ""} className="mr-auto" onChange={onChangeStatus}>
                                 <option value="">ALL</option>
                                 <option value="PENDING">PENDING</option>
                                 <option value="REJECTED">REJECTED</option>

@@ -2,6 +2,7 @@
 import { FaShoppingBasket } from "react-icons/fa";
 import Badge from "../../Global/Bagde/Bagde";
 import { getImgPath } from "../../../util";
+import { formattedVND } from "../../../util";
 
 export default function BoughtItem({ item, onOpenCreateForm}) {
     
@@ -19,10 +20,10 @@ export default function BoughtItem({ item, onOpenCreateForm}) {
             <div className="flex flex-col  items-start text-sm">
                 <p><span className="font-semibold">Số lượng đã mua:</span> {item.quantity}</p>
                 <p><span className="font-semibold">Được giảm:</span> {item.discount}%</p>
-                <p><span className="font-semibold">Gía mỗi đơn vị:</span> {item.price}</p>
+                <p><span className="font-semibold">Gía mỗi đơn vị:</span> {formattedVND.format(item.price)}</p>
             </div>
 
-            <button id={item.id} className="mt-2 w-fit rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700" onClick={onOpenCreateForm}>Tạo yêu cầu hoàn sản phẩm này</button>
+            <button id={item.id} className="mt-2 w-fit rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 cursor-pointer" onClick={onOpenCreateForm}>Tạo yêu cầu hoàn sản phẩm này</button>
 
         </div>
     );

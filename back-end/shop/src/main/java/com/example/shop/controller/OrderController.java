@@ -15,10 +15,12 @@ import com.example.shop.dto.request.CreateNewOrderRequest;
 import com.example.shop.dto.request.UpdateOrderInforRequest;
 import com.example.shop.dto.response.CancelOrderResponse;
 import com.example.shop.dto.response.CreateNewOrderResponse;
-import com.example.shop.dto.response.OrderDTO;
+import com.example.shop.dto.response.OrderWithUserAndItemsDTO;
 import com.example.shop.dto.response.OrderItemDTO;
 import com.example.shop.entity.Order;
+import com.example.shop.entity.OrderItem;
 import com.example.shop.entity.User;
+import com.example.shop.mapper.OrderMapper;
 import com.example.shop.service.AuthService;
 import com.example.shop.service.ColorService;
 import com.example.shop.service.OrderService;
@@ -42,6 +44,7 @@ public class OrderController {
     @Autowired UserService userService;
     @Autowired ProductService productService;
     @Autowired ColorService colorService;
+    @Autowired OrderMapper orderMapper;
 
     @PostMapping("/create")
     public ResponseEntity<?> createNewOrder(CreateNewOrderRequest request) {
@@ -63,10 +66,10 @@ public class OrderController {
         User user = authService.getAuthenticatedUser();
         Order order = orderService.updateOrderInfor(request, user);
 
-        ApiResponse<OrderDTO> response = ApiResponse.<OrderDTO>builder()
+        ApiResponse<OrderWithUserAndItemsDTO> response = ApiResponse.<OrderWithUserAndItemsDTO>builder()
             .code(200)
             .message("Cập nhập đơn hàng thành công!")
-            .data(orderService.convertToOrderDTO(order))
+            .data(orderMapper.toOrderWithUserAndItemsDTO(order))
             .build();
         
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -89,9 +92,10 @@ public class OrderController {
     @GetMapping("/detail/{orderId}")
     public ResponseEntity<?> getOrderDetail(@PathVariable(value = "orderId") Integer orderId) {
         
-        OrderDTO data = orderService.getOrderDTObyOrderId(orderId);
+        Order order = orderService.findOrderById(orderId);
+        OrderWithUserAndItemsDTO data = orderMapper.toOrderWithUserAndItemsDTO(order);
 
-        ApiResponse<OrderDTO> response = ApiResponse.<OrderDTO>builder()
+        ApiResponse<OrderWithUserAndItemsDTO> response = ApiResponse.<OrderWithUserAndItemsDTO>builder()
             .code(200)
             .message("Lấy dữ liệu thành công!")
             .data(data)
@@ -103,9 +107,10 @@ public class OrderController {
     @GetMapping("/search")
     public ResponseEntity<?> searchOrderByStatus( @RequestParam(value = "page") Integer page,
                                     @RequestParam(value = "status") String status) {
-
-        Page<OrderDTO> data = orderService.findOrderByStatus(status, page-1);
-        ApiResponse<Page<OrderDTO>> response = ApiResponse.<Page<OrderDTO>>builder()
+        
+        Page<Order> orders = orderService.findOrderByStatus(status, page - 1);
+        Page<OrderWithUserAndItemsDTO> data = orders.map(order -> orderMapper.toOrderWithUserAndItemsDTO(order));
+        ApiResponse<Page<OrderWithUserAndItemsDTO>> response = ApiResponse.<Page<OrderWithUserAndItemsDTO>>builder()
                                         .code(200)
                                         .message("Lấy dữ liệu thành công!")
                                         .data(data)
@@ -132,12 +137,13 @@ public class OrderController {
     public ResponseEntity<?> getAllUserOrder(@RequestParam(name = "page") Integer page) {
 
         User user = authService.getAuthenticatedUser();
-        Page<OrderDTO> orders = orderService.findAllOrdersByUser(user, page - 1);
+        Page<Order> orders = orderService.findAllOrdersByUser(user, page - 1);
+        Page<OrderWithUserAndItemsDTO> data = orders.map(order -> orderMapper.toOrderWithUserAndItemsDTO(order));
 
-        ApiResponse<Page<OrderDTO>> response = ApiResponse.<Page<OrderDTO>>builder()
+        ApiResponse<Page<OrderWithUserAndItemsDTO>> response = ApiResponse.<Page<OrderWithUserAndItemsDTO>>builder()
             .code(200)
             .message("Lấy danh sách các đơn hàng thành công!")
-            .data(orders)
+            .data(data)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -147,7 +153,8 @@ public class OrderController {
     public ResponseEntity<?> getMethodName(@RequestParam(name = "page") Integer page) {
         User user = authService.getAuthenticatedUser();
         System.out.println(user.getUsername());
-        Page<OrderItemDTO> orderItemDTOs = orderService.findAllBoughtItemByUserId(user.getId(), page-1);
+        Page<OrderItem> orderItems = orderService.findAllBoughtItemByUserId(user.getId(), page - 1);
+        Page<OrderItemDTO> orderItemDTOs = orderItems.map(orderItem -> orderMapper.toOrderItemDTO(orderItem));
 
         ApiResponse<Page<OrderItemDTO>> response = ApiResponse.<Page<OrderItemDTO>>builder()
             .code(200)

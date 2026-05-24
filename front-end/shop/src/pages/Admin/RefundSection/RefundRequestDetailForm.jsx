@@ -16,10 +16,11 @@ export default function RefundRequestDetailForm() {
     const { isDetailFormOpen, refundRequestId, setDetailFormState, setRefreshKey } = useContext(RefundSectionContext);
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
-    let [formData, setFormData] = useState(null);
-    let [image, setImage] = useState(null);
-    let [isLoading, setIsLoading] = useState(false);
+    const { token } = useContext(AppContext);
+    const [formData, setFormData] = useState(null);
+    const [image, setImage] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
 
     function closeForm() {
         setFormData(null);
@@ -42,7 +43,7 @@ export default function RefundRequestDetailForm() {
                     isOpen: true
                 });
 
-                if(!isError) {
+                if (!isError) {
                     setRefreshKey(genID());
                 }
 
@@ -102,8 +103,8 @@ export default function RefundRequestDetailForm() {
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
-                    <form action="" id="update-refundRequest-form">
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
+                    <form action="" id="detail-refundRequest-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết sản phẩm</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
                             <div>
@@ -111,20 +112,24 @@ export default function RefundRequestDetailForm() {
                             </div>
                             <div className="flex flex-col h-full justify-center items-start p-2 md:p-5 gap-2">
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="id-update-refundRequest-form" className="font-bold">Mã yêu cầu: </label>
-                                    <input name="id" className="border px-1 py-0.5 rounded-lg border-violet-200" readOnly id="id-update-refundRequest-form" type="text" defaultValue={formData ? formData.id : ""} />
+                                    <label htmlFor="id-detail-refundRequest-form" className="font-bold">Mã yêu cầu: </label>
+                                    <input name="id" className="border px-1 py-0.5 rounded-lg border-violet-200" readOnly id="id-detail-refundRequest-form" type="text" defaultValue={formData ? formData.id : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="username-update-refundRequest-form" className="font-bold">Người yêu cầu: </label>
-                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="username-update-refundRequest-form" type="text" defaultValue={formData ? formData.username : ""} />
+                                    <label htmlFor="username-detail-refundRequest-form" className="font-bold">Người yêu cầu: </label>
+                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="username-detail-refundRequest-form" type="text" defaultValue={formData ? formData.username : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="name-update-refundRequest-form" className="font-bold">Tên sản phẩm: </label>
-                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="name-update-refundRequest-form" type="text" defaultValue={formData ? formData.productName : ""} />
+                                    <label htmlFor="name-detail-refundRequest-form" className="font-bold">Tên sản phẩm: </label>
+                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="name-detail-refundRequest-form" type="text" defaultValue={formData ? formData.productName : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
-                                    <label htmlFor="time-update-refundRequest-form" className="font-bold">Tạo lúc: </label>
-                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="time-update-refundRequest-form" type="text" defaultValue={formData ? formData.createdAt : ""} />
+                                    <label htmlFor="quantity-detail-refundRequest-form" className="font-bold">Số lượng: </label>
+                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="time-detail-refundRequest-form" type="text" defaultValue={formData ? formData.quantity : ""} />
+                                </div>
+                                <div className="flex flex-row justify-between w-full gap-2">
+                                    <label htmlFor="time-detail-refundRequest-form" className="font-bold">Tạo lúc: </label>
+                                    <input readOnly name="name" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="time-detail-refundRequest-form" type="text" defaultValue={formData ? formData.createdAt : ""} />
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="" className="font-bold">Trạng thái: </label>
@@ -132,17 +137,27 @@ export default function RefundRequestDetailForm() {
                                 </div>
 
                                 <div className="flex flex-col justify-center items-start w-full">
-                                    <label htmlFor="reason-update-refundRequest-form" className="font-bold">Mô tả sản phẩm: </label>
-                                    <textarea readOnly name="reason" id="reason-update-refundRequest-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.reason : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
+                                    <label htmlFor="reason-detail-refundRequest-form" className="font-bold">Mô tả sản phẩm: </label>
+                                    <textarea readOnly name="reason" id="reason-detail-refundRequest-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.reason : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
                                 </div>
-
-                                <button onClick={()=>onHandleRequest("REJECTED")} className="rounded-sm w-full bg-red-500 hover:bg-red-600 text-white px-1 py-0.5 md:px-2 md:py-1">Từ chối</button>
-                                <button onClick={()=>onHandleRequest("ACCEPTED")} className="rounded-sm w-full bg-green-500 hover:bg-green-600 text-white px-1 py-0.5 md:px-2 md:py-1">Đồng ý</button>
-                                <button onClick={onHandleRequest} className="rounded-sm w-full bg-yellow-500 hover:bg-yellow-600 text-white px-1 py-0.5 md:px-2 md:py-1">Hoàn coin</button>
+                                {
+                                    formData && formData.status === "PENDING" ?
+                                        <>
+                                            <button onClick={() => onHandleRequest("REJECTED")} className="rounded-sm w-full bg-red-500 hover:bg-red-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Từ chối</button>
+                                            <button onClick={() => onHandleRequest("ACCEPTED")} className="rounded-sm w-full bg-green-500 hover:bg-green-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Đồng ý</button>
+                                        </> : <></>
+                                }
+                                {
+                                    formData && formData.status === "ACCEPTED" ? 
+                                    <>
+                                        <button onClick={onHandleRequest} className="rounded-sm w-full bg-yellow-500 hover:bg-yellow-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Hoàn coin</button>
+                                    </> : <></>
+                                }
+                                
                             </div>
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

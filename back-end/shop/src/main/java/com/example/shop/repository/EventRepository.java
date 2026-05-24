@@ -46,4 +46,5 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
                                                         
     );
 
+    public Long countByStartAtLessThanEqualAndEndAtGreaterThanEqual(LocalDate endTime, LocalDate startTime);
 }

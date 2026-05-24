@@ -19,4 +19,5 @@ public class RefundRequestDTO {
     private String image;
     private Integer id;
     private String reason;
+    private Integer quantity;
 }

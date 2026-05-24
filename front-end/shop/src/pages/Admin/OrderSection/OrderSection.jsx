@@ -7,7 +7,7 @@ import Badge from "../../Global/Bagde/Bagde";
 import ActionButtons from "../ActionButton";
 import Pagination from "../Pagination";
 import AppContext from "../../../AppContext";
-import { fetchApiFunc } from "../../../util";
+import { fetchApiFunc, formattedVND } from "../../../util";
 import api from "../../../api";
 import Loading from "../../Global/Loading/Loading";
 import NotFoundData from "../../Global/NotFoundData/NotFoundData";
@@ -95,7 +95,7 @@ export default function OrderSection() {
                     </div>
                     {
                         orders.length == 0 ? <NotFoundData></NotFoundData> :
-                            <Card className="h-full flex flex-col justify-between" title="Hoàn tiền">
+                            <Card className="h-full flex flex-col justify-between" title="Đơn hàng">
                                 <Table className={"overflow-scroll flex-1 w-full hide-scrollbar"}
                                     columns={["ID", "Username", "Ngày tạo", "Địa chỉ", "Số điện thoại", "Tổng tiền", "Trạng thái", "Hành động"]}
                                     rows={orders.map((r) => (
@@ -105,7 +105,7 @@ export default function OrderSection() {
                                             <td className="px-4 py-4">{r.order.createdAt}</td>
                                             <td className="px-4 py-4">{r.order.address}</td>
                                             <td className="px-4 py-4">{r.order.phone}</td>
-                                            <td className="px-4 py-4">{r.price}</td>
+                                            <td className="px-4 py-4">{formattedVND.format(r.order.price)}</td>
                                             <td className="px-4 py-4"><Badge value={r.order.status} /></td>
                                             <td className="px-4 py-4"><ActionButtons id={r.order.id} onOpenDetailForm={onOpenDetailForm} /></td>
                                         </tr>

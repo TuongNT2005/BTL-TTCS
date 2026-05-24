@@ -13,9 +13,10 @@ export default function ProductVariantEditForm() {
 
 
     const { isEditFormOpen, productVariantId, setEditFormState, refreshKey, setRefreshKey } = useContext(WareHouseSectionContext);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
+    let {token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
     let [isLoading, setIsLoading] = useState(false);
@@ -41,27 +42,15 @@ export default function ProductVariantEditForm() {
         setEditFormState({ isEditFormOpen: false, productVariantId: 1 });
     }
 
-    function validateForm() {
-        let purchasePrice = document.getElementById("price-update-product-variant-form").value;
-        if (purchasePrice <= 0) {
-            return {
-                isValid: false, message: "Gía bán không được nhỏ hơn/ bằng 0!"
-            }
-        }
-        return {
-            isValid: true
-        }
-    }
-
     async function sendForm(e) {
         e.preventDefault();
-        let validateRes = validateForm();
-        if (!validateRes.isValid) {
-            setNotifierData({ isError: true, title: "Lỗi", message: validateRes.message, isOpen: true })
+
+        const form = document.getElementById("update-product-form");
+        if(!form.checkValidity()) {
+            setNotifierData({ isError: true, title: "Lỗi", message: "Hãy kiểm tra lại thông tin nhập liệu!", isOpen: true })
             return;
         }
 
-        const form = document.getElementById("update-product-form");
         const formData = new FormData(form);
         try {
             setIsLoading(true);
@@ -88,7 +77,6 @@ export default function ProductVariantEditForm() {
     }
 
     useEffect(() => {
-        // setNotifierData({ isError: false, title: "", message: "", isOpen: false });
 
         if (ref.current === null) return;
 
@@ -117,7 +105,6 @@ export default function ProductVariantEditForm() {
                     });
                 } finally {
                     setIsLoading(false);
-                    // con
                 }
             }
 
@@ -134,7 +121,7 @@ export default function ProductVariantEditForm() {
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
                     <form action="" id="update-product-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết biến thể</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
@@ -167,7 +154,7 @@ export default function ProductVariantEditForm() {
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="status-update-product-variant-form" className="font-bold">Trạng thái: </label>
-                                    <select id="status-update-product-variant-form" name="status" defaultValue={formData ? formData.status : ""} className="border rounded-lg border-violet-200 px-2">
+                                    <select required id="status-update-product-variant-form" name="status" defaultValue={formData ? formData.status : ""} className="border rounded-lg border-violet-200 px-2">
                                         <option value="AVALIBLE">AVALIBLE</option>
                                         <option value="UNAVALIBLE">UNAVALIBLE</option>
                                         <option value="COMING">COMING</option>
@@ -183,13 +170,13 @@ export default function ProductVariantEditForm() {
                                 </div>
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="price-update-product-variant-form" className="font-bold">Gía bán: </label>
-                                    <input name="purchasePrice" className="border px-1 py-0.5 rounded-lg border-violet-200 italic" placeholder="Nhập giá bán..." id="price-update-product-variant-form" type="number" defaultValue={formData ? formData.purchasePrice : ""} />
+                                    <input required name="purchasePrice" min={1000} className="border px-1 py-0.5 rounded-lg border-violet-200 italic" placeholder="Nhập giá bán..." id="price-update-product-variant-form" type="number" defaultValue={formData ? formData.purchasePrice : ""} />
                                 </div>
-                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1">Cập nhập</button>
+                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Cập nhập</button>
                             </div>
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

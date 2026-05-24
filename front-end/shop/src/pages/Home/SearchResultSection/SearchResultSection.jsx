@@ -87,6 +87,10 @@ export default function SearchResultSection({ keyword, category, setIsSearching 
         fetchData();
     }, [searchData])
 
+    useEffect(() => {
+        setCurPage(1);
+    }, [keyword, category])
+
     return <>
         {detailFormState.isDetailFormOpen ? <ProductDetailForm detailFormState={detailFormState} setDetailFormState={setDetailFormState}></ProductDetailForm> : <></>}
         {

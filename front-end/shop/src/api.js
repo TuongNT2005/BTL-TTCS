@@ -4,6 +4,8 @@ export default {
     login: "http://localhost:8080/auth/login",
     registration: "http://localhost:8080/auth/registration",
     upload: "http://localhost:8080/uploads",
+    getUser: "http://localhost:8080/users/user",
+    renewToken: "http://localhost:8080/auth/refresh",
     admin: {
         productTab: {
             getData:"http://localhost:8080/products/products",
@@ -18,6 +20,7 @@ export default {
             updateProductVariant: "http://localhost:8080/products/product-variant",
             searchProductVariant: "http://localhost:8080/products/product-variants",
             importProductVariant: "http://localhost:8080/warehouse/import",
+            getAllProducts: "http://localhost:8080/products/simple-products"
         },
         userTab: {
             searchUser: "http://localhost:8080/users/search",
@@ -39,6 +42,14 @@ export default {
             searchOrder: "http://localhost:8080/order/search",
             getOrderDetailById: "http://localhost:8080/order/detail",
             comfirmSendingOrder: "http://localhost:8080/order/set-sending",
+        },
+        dashBoard: {
+            getSummary: "http://localhost:8080/report/summary",
+            getSaleWithCategories: "http://localhost:8080/report/sale-with-category",
+            getStarCount: "http://localhost:8080/report/star-count",
+            getSaleFigure: "http://localhost:8080/report/sale-figure",
+            getTrendingProducts: "http://localhost:8080/report/trend-products",
+            getTopSpendingCustomers: "http://localhost:8080/report/top-spending"
         }
     },
     home: {
@@ -59,6 +70,10 @@ export default {
         },
     },
     customer: {
+        profileSection: {
+            updateUserInfor: "http://localhost:8080/users/update-infor",
+            changePassword: "http://localhost:8080/users/change-pass"
+        },
         cartSection: {
             getCartItems: "http://localhost:8080/cart",
             createOrder: "http://localhost:8080/order/create",

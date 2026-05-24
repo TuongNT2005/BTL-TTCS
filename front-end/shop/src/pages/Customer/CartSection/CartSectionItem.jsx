@@ -1,6 +1,7 @@
 import { getImgPath } from "../../../util"
 import { useRef, useCallback, useContext } from "react"
 import CartSectionContext from "./CartSectionContext";
+import { formattedVND } from "../../../util";
 
 export default function CartSectionItem({ item, isChecked}) {
 
@@ -25,7 +26,7 @@ export default function CartSectionItem({ item, isChecked}) {
         }
 
         totalPriceRef.current.innerText =
-            quantity.current.value * discountedPrice;
+            `Tổng: ${formattedVND.format(quantity.current.value * discountedPrice)}`;
     }, [discountedPrice, item]);
 
     const onClickCartItem = useCallback((e) => {
@@ -58,7 +59,7 @@ export default function CartSectionItem({ item, isChecked}) {
     return (
         <label
             htmlFor={`choose-item-${item.cartItem.id}`}
-            className="grid grid-cols-[80px_2fr_1fr_1fr_1fr_1fr] gap-4 w-full items-center px-3 py-2 hover:bg-violet-200"
+            className="grid grid-cols-[80px_2fr_1fr_1fr_1fr_1fr] gap-4 w-full items-center px-3 py-2 hover:bg-violet-200 cursor-pointer"
         >
             <img
                 src={getImgPath(item.productVariantDTO.image)}
@@ -74,8 +75,8 @@ export default function CartSectionItem({ item, isChecked}) {
             </div>
 
             <div className="flex flex-col  items-start text-sm">
-                <p><span className="font-semibold">Giá gốc:</span> {item.productVariantDTO.purchasePrice}</p>
-                <p><span className="font-semibold">Sau giảm:</span> {discountedPrice}</p>
+                <p><span className="font-semibold">Giá gốc:</span> {formattedVND.format(item.productVariantDTO.purchasePrice)}</p>
+                <p><span className="font-semibold">Sau giảm:</span> {formattedVND.format(discountedPrice)}</p>
                 <p><span className="font-semibold">Giảm:</span> {item.productVariantDTO.discount}%</p>
             </div>
 
@@ -90,8 +91,8 @@ export default function CartSectionItem({ item, isChecked}) {
                 />
             </div>
 
-            <p ref={totalPriceRef} className="font-semibold text-red-500">
-                Tổng: {discountedPrice}
+            <p ref={totalPriceRef} className="font-semibold">
+                Tổng: {formattedVND.format(discountedPrice)}
             </p>
 
             <div className="flex items-center gap-2">

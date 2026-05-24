@@ -1,5 +1,6 @@
 package com.example.shop.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,8 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     public List<Product> findByKeyword(@Param("keyword") String keyword);
 
     @Query(
-        value = "SELECT * FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%') AND (:category IS NULL OR :category = '' OR CATEGORY = :category)", 
-        countQuery = "SELECT COUNT(*) FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%') AND (:category = '' OR CATEGORY = :category)",
+        value = "SELECT * FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%') AND (:category IS NULL OR :category = '' OR CATEGORY = :category) ORDER BY NAME", 
+        countQuery = "SELECT COUNT(*) FROM PRODUCT WHERE NAME LIKE CONCAT('%',:keyword,'%') AND (:category = '' OR CATEGORY = :category) ORDER BY NAME",
         nativeQuery = true)
     public Page<Product> findByKeyword(@Param("keyword") String keyword, @Param("category") String category, Pageable pageable);
 
@@ -35,4 +36,18 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     
     @Query(value = "SELECT a.* FROM PRODUCT a LEFT JOIN PRODUCTVARIANT b on a.id = b.productId LEFT JOIN ORDERITEM c on b.id = c.productVariantId WHERE c.id = :orderItemId", nativeQuery = true)
     public Optional<Product> findByOrderItemId(@Param(value = "orderItemId") Integer orderItemId);
+
+    @Query(value = """
+        select p.id, p.name, p.image, sum(oi.quantity) as 'quantity', sum(oi.quantity * oi.price) as 'income'
+        from orderitem oi left join
+        orders o on oi.orderId = o.id left join
+        productvariant pv on pv.id = oi.productVariantId left join
+        product p on p.id = pv.productId
+        where o.createdAt between :startAt and :endAt
+        group by p.id, p.name, p.image
+        order by quantity desc, income desc
+        limit 10
+            """, nativeQuery = true)
+    public List<Object[]> getTrendProducts(@Param(value = "startAt") LocalDateTime startAt,
+                                    @Param(value = "endAt") LocalDateTime endAt);
 }

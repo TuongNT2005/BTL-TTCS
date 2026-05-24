@@ -19,11 +19,12 @@ import com.example.shop.dto.request.CreateEventRequest;
 import com.example.shop.dto.request.UpdateEventRequest;
 import com.example.shop.dto.response.CreateEventResponse;
 import com.example.shop.dto.response.EventDTO;
+import com.example.shop.dto.response.EventWithProductsDTO;
 import com.example.shop.entity.Event;
 import com.example.shop.entity.Product;
+import com.example.shop.mapper.EventMapper;
 import com.example.shop.service.EventService;
 import com.example.shop.service.ProductService;
-import com.example.shop.util.Converter;
 
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +40,9 @@ public class EventController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private EventMapper eventMapper;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
@@ -69,13 +73,13 @@ public class EventController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> get(@RequestParam(name = "keyword") String keyword,
+    public ResponseEntity<?> getEvents(@RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "page") Integer page,
             @RequestParam(name = "startAt") String startAt,
             @RequestParam(name = "endAt") String endAt) {
 
         Page<Event> res = eventServive.findAllEvents(page - 1, keyword, startAt, endAt);
-        Page<EventDTO> events = res.map(event -> Converter.convertEventToEventDTO(event));
+        Page<EventDTO> events = res.map(event -> eventMapper.toEventDTO(event));
 
         Map<String, Integer> productList = new TreeMap<>();
         List<Product> products = productService.getAllProducts();
@@ -100,14 +104,10 @@ public class EventController {
     public ResponseEntity<?> getEventById(@PathVariable(value = "id") Integer eventId) {
         Event event = eventServive.findEventById(eventId);
         List<Product> productList = productService.findAllProductByEventId(eventId);
-        Map<String, Object> productReturnList = new TreeMap<>();
-        for(Product product : productList) {
-            productReturnList.put(product.getName(), product.getId());
-        }
-        Map<String, Object> data = new TreeMap<>();
-        data.put("event", event);
-        data.put("productList", productReturnList);
-        ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+        
+        EventWithProductsDTO data = eventMapper.toEventWithProductsDTO(event, productList);
+
+        ApiResponse<EventWithProductsDTO> response = ApiResponse.<EventWithProductsDTO>builder()
             .code(200)
             .message("Lấy dữ liệu sự kiện thành công!")
             .data(data)
@@ -120,7 +120,7 @@ public class EventController {
         List<Event> events = eventServive.findAllEvent();
         List<EventDTO> eventDTOs = new ArrayList<>();
         for(Event event : events) {
-            eventDTOs.add(Converter.convertEventToEventDTO(event));
+            eventDTOs.add(eventMapper.toEventDTO(event));
         }
         
         ApiResponse<List<EventDTO>> response = ApiResponse.<List<EventDTO>>builder()

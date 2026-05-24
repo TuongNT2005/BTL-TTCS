@@ -16,7 +16,7 @@ import { fetchApiFunc, formatDate, getEventBadgeValue } from "../../../util";
 
 export default function EventsSection({ keyword }) {
 
-    const {token } = useContext(AppContext);
+    const { token } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const [productList, setProductList] = useState("");
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
@@ -61,6 +61,7 @@ export default function EventsSection({ keyword }) {
 
     let onChangeStartAt = useCallback(function () {
         const start = document.getElementById("startAtInput").value;
+        console.log(start);
         setStartAt(start);
     }, [])
 
@@ -72,11 +73,12 @@ export default function EventsSection({ keyword }) {
     const searchData = useCallback(async function () {
         try {
             setIsLoading(true);
-            const res = await fetchApiFunc("", `${api.admin.eventTab.searchEvent}?keyword=${keyword}&page=${curPage}&startAt=${formatDate(startAt)}&endAt=${formatDate(endAt)}`, "GET", token);
-            console.log(res);
-            setEvents(res.data.events.content);
-            setProductList(res.data.productList);
-            return res;
+            const res1 = await fetchApiFunc("", `${api.admin.eventTab.searchEvent}?keyword=${keyword}&page=${curPage}&startAt=${formatDate(startAt)}&endAt=${formatDate(endAt)}`, "GET", token);
+            const res2 = await fetchApiFunc("", api.admin.warehouseTab.getAllProducts, "GET", token);
+            console.log(res2);
+            setEvents(res1.data.events.content);
+            setProductList(res2.data);
+            return res1;
         } catch (error) {
             alert(error);
             console.error(error)
@@ -94,8 +96,13 @@ export default function EventsSection({ keyword }) {
         fetchData();
     }, [searchData, refreshKey])
 
+    // Reset page khi keyword thay đổi
+    useEffect(() => {
+        setCurPage(1);
+    }, [keyword]);
 
-    return <EventSectionContext.Provider value={{...editFormState, setEditFormState, refreshKey, setRefreshKey, productList, isCreateFormOpen, setIsCreateFormOpen}}>
+
+    return <EventSectionContext.Provider value={{ ...editFormState, setEditFormState, refreshKey, setRefreshKey, productList, isCreateFormOpen, setIsCreateFormOpen }}>
         <> {editFormState.isEditFormOpen ? <EventEditForm></EventEditForm> : isCreateFormOpen ? <EventCreateForm></EventCreateForm> : <></>}
             {
                 !editFormState.isEditFormOpen && !isCreateFormOpen && isLoading ? <Loading></Loading> :
@@ -110,7 +117,7 @@ export default function EventsSection({ keyword }) {
                                 <input onChange={onChangeEndAt} defaultValue={endAt} type="date" className="border px-1 py-0.5 rounded-lg border-violet-200" id="endAtInput" />
                             </div>
                         </div>
-                        <Card title="Sự kiện" action={<button onClick={onOpenCreateForm} className="h-full inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white"><FaPlus size={16} /> Thêm</button>}>
+                        <Card title="Sự kiện" action={<button onClick={onOpenCreateForm} className="h-full inline-flex items-center gap-2 rounded-2xl bg-green-500 hover:bg-green-600 px-4 py-2.5 text-sm font-semibold text-white cursor-pointer"><FaPlus size={16} /> Thêm</button>}>
                             <Table className={"overflow-scroll flex-1 w-full hide-scrollbar"}
                                 columns={["ID", "Tiêu đề", "Giảm", "Bắt đầu", "Kết thúc", "Trạng thái", "Hành động"]}
                                 rows={events.map((e) => (
@@ -118,8 +125,8 @@ export default function EventsSection({ keyword }) {
                                         <td className="px-4 py-4 font-medium">{e.id}</td>
                                         <td className="px-4 py-4 font-medium">{e.title}</td>
                                         <td className="px-4 py-4">{e.discount}%</td>
-                                        <td className="px-4 py-4">{formatDate(e.startAt)}</td>
-                                        <td className="px-4 py-4">{formatDate(e.endAt)}</td>
+                                        <td className="px-4 py-4">{e.startAt}</td>
+                                        <td className="px-4 py-4">{e.endAt}</td>
                                         <td className="px-4 py-4"><Badge value={getEventBadgeValue(e.startAt, e.endAt)} /></td>
                                         <td className="px-4 py-4"><ActionButtons id={e.id} onOpenDetailForm={onOpenDetailForm} /></td>
                                     </tr>

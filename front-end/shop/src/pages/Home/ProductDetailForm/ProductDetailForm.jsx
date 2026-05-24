@@ -105,13 +105,13 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
 
 
 
-    return <dialog ref={ref} className="m-auto h-max p-2 md:p-5  bg-white text-black rounded-2xl shadow-sm">
+    return <dialog ref={ref} className="m-auto h-max p-2 md:p-5  bg-white text-black rounded-2xl shadow-sm hide-scrollbar">
 
         {
             isLoading ? <Loading></Loading> :
                 <>
                     <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
-                    <div>
+                    <div> 
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết sản phẩm</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
                             <div>
@@ -140,7 +140,7 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
                                 {
                                     productVariants && productVariants.length > 0 ? <>
                                         {
-                                            productVariants.map(pv => <ProductVariantItem item={pv} productName={product.name}></ProductVariantItem>)
+                                            productVariants.map(pv => <ProductVariantItem key={pv.id} item={pv} productName={product.name}></ProductVariantItem>)
                                         }
                                     </> : <NotFoundData></NotFoundData>
                                 }
@@ -186,7 +186,7 @@ export default function ProductDetailForm({ detailFormState, setDetailFormState 
                         </section>
 
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </div>
                 </>
         }

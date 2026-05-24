@@ -1,5 +1,5 @@
 
-import React, {useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import AppContext from "../../AppContext";
 
 import { IoBarChart } from "react-icons/io5";
@@ -21,6 +21,9 @@ import CartSection from "./CartSection/CartSection";
 import OrderSection from "./OrderSection/OrderSection";
 import HistorySection from "./History/HistorySection";
 import RefundRequestSection from "./RefundRequestSection/RefundRequestSection";
+import { getImgPath, fetchApiFunc } from "../../util";
+import Loading from "../Global/Loading/Loading";
+import api from "../../api";
 
 const menuItems = [
     { key: "personal", label: "Cá nhân", icon: TbLayoutDashboardFilled },
@@ -32,27 +35,55 @@ const menuItems = [
 
 
 export default function CustomerPage() {
-    const [activeSection, setActiveSection] = useState("products");
+    const [activeSection, setActiveSection] = useState("personal");
     const [keyword, setKeyword] = useState("");
-    const {authUser} = useContext(AppContext);
+    const { authUser, token } = useContext(AppContext);
+    const [user, setUser] = useState(authUser);
+    const [isLoading, setIsLoading] = useState(false);
 
     console.log(authUser);
+
+    useEffect(() => {
+        console.log("wtf");
+        async function fetchUser() {
+            try {
+                setIsLoading(true);
+
+                const res = await fetchApiFunc(null, `${api.getUser}/${authUser.id}`, 'GET', token);
+                console.log(res);
+                setUser(res.data)
+
+            } catch (error) {
+                console.log(error)
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchUser();
+    }, [authUser, token])
 
     return (
         <Container>
             <div className="flex relative h-screen">
                 <Sidebar active={activeSection} setActive={setActiveSection} />
                 <div className="min-w-0 flex-1 flex flex-col">
-                    <Topbar active={activeSection} setActive={setActiveSection} keyword={keyword} setKeyword={setKeyword} />
-                    <main className="space-y-6 p-4 sm:p-6 lg:p-8 flex-1 overflow-hidden">
 
-                        {activeSection === "personal" && <Profile user={authUser}></Profile>}
-                        {activeSection === "carts" && <CartSection></CartSection>}
-                        {activeSection === "orders" && <p><OrderSection></OrderSection></p>}
-                        {activeSection === "history" && <p><HistorySection></HistorySection></p>}
-                        {activeSection === "refund" && <p><RefundRequestSection></RefundRequestSection></p>}
-                        
-                    </main>
+                    {
+                        isLoading ? <Loading></Loading> :
+                            <>
+                                <Topbar active={activeSection} setActive={setActiveSection} keyword={keyword} setKeyword={setKeyword} user={user} />
+                                <main className="space-y-6 p-4 sm:p-6 lg:p-8 flex-1 overflow-hidden">
+
+                                    {activeSection === "personal" && <Profile user={user} setUser={setUser} ></Profile>}
+                                    {activeSection === "carts" && <CartSection></CartSection>}
+                                    {activeSection === "orders" && <p><OrderSection></OrderSection></p>}
+                                    {activeSection === "history" && <p><HistorySection></HistorySection></p>}
+                                    {activeSection === "refund" && <p><RefundRequestSection></RefundRequestSection></p>}
+
+                                </main>
+                            </>
+                    }
                 </div>
             </div>
         </Container>
@@ -79,7 +110,7 @@ function Sidebar({ active, setActive }) {
                         <button
                             key={item.key}
                             onClick={() => setActive(item.key)}
-                            className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${isActive ? "bg-violet-600 text-white shadow-lg" : "text-slate-600 hover:bg-violet-50 hover:text-violet-700"
+                            className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition cursor-pointer ${isActive ? "bg-violet-600 text-white shadow-lg" : "text-slate-600 hover:bg-violet-50 hover:text-violet-700"
                                 }`}
                         >
                             <Icon size={18} />
@@ -92,7 +123,7 @@ function Sidebar({ active, setActive }) {
     );
 }
 
-function Topbar({ active, setActive}) {
+function Topbar({ active, setActive, user }) {
     return (
         <div className="sticky top-0 left-0 z-30 border-b border-violet-100 bg-white/90 backdrop-blur">
             <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
@@ -102,10 +133,11 @@ function Topbar({ active, setActive}) {
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <div className="flex items-center gap-3 rounded-2xl border border-violet-100 bg-white px-4 py-2.5 shadow-sm">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700">A</div>
+                        {/* <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700">A</div> */}
+                        <img src={getImgPath(user.avatar)} alt="" className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700" />
                         <div>
-                            <p className="text-sm font-semibold text-slate-800">Admin</p>
-                            <div className="flex items-center gap-1 text-xs text-slate-500"><IoMail size={12} /> Admin@gmail.com</div>
+                            <p className="text-sm font-semibold text-slate-800">{user.username}</p>
+                            <div className="flex items-center gap-1 text-xs text-slate-500"><IoMail size={12} /> {user.email} </div>
                         </div>
                     </div>
                 </div>

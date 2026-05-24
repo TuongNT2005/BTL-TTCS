@@ -1,6 +1,5 @@
 import LoginForm from "../../organism/LoginForm/LoginForm"
 import { cn } from "../../../util"
-import Notifier from "../../organism/Notifier/Notifier";
 
 export default function LoginPage() {
     return <>
@@ -15,8 +14,6 @@ export default function LoginPage() {
             )}
                 id="loginForm">
             </LoginForm>
-        </div
-    ></>
-
-
+        </div>
+    </>
 }

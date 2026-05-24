@@ -15,6 +15,7 @@ import com.example.shop.dto.response.CreateRefundResponse;
 import com.example.shop.dto.response.RefundRequestDTO;
 import com.example.shop.entity.RefundRequest;
 import com.example.shop.entity.User;
+import com.example.shop.mapper.RefundRequestMapper;
 import com.example.shop.service.AuthService;
 import com.example.shop.service.RefundService;
 
@@ -34,6 +35,9 @@ public class RefundController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private RefundRequestMapper refundRequestMapper;
 
     @PostMapping(value = "/create", consumes = "multipart/form-data")
     public ResponseEntity<?> createRefundRequest(CreateRefundRequest request) {
@@ -81,7 +85,7 @@ public class RefundController {
 
         Page<RefundRequest> refundRequests = refundService.searchRefundRequest(page - 1, status, keyword);
         Page<RefundRequestDTO> data = refundRequests.map(refundRequest -> {
-            return refundService.convertToRefundRequestDTO(refundRequest);
+            return refundRequestMapper.toRefundRequestDTO(refundRequest);
         });
 
         ApiResponse<Page<RefundRequestDTO>> response = ApiResponse.<Page<RefundRequestDTO>>builder()
@@ -101,7 +105,7 @@ public class RefundController {
         Integer userId = authService.getAuthenticatedUserId();
         Page<RefundRequest> refundRequests = refundService.searchRefundRequestByUserId(page - 1, status, keyword, userId);
         Page<RefundRequestDTO> data = refundRequests.map(refundRequest -> {
-            return refundService.convertToRefundRequestDTO(refundRequest);
+            return refundRequestMapper.toRefundRequestDTO(refundRequest);
         });
 
         ApiResponse<Page<RefundRequestDTO>> response = ApiResponse.<Page<RefundRequestDTO>>builder()
@@ -120,7 +124,7 @@ public class RefundController {
         ApiResponse<RefundRequestDTO> response = ApiResponse.<RefundRequestDTO>builder()
                 .code(200)
                 .message("Lấy dữ liệu thành công!")
-                .data(refundService.convertToRefundRequestDTO(refundRequest))
+                .data(refundRequestMapper.toRefundRequestDTO(refundRequest))
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK).body(response);

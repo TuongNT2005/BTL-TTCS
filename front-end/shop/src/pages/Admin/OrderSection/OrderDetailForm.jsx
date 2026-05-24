@@ -2,7 +2,7 @@ import { useEffect, useContext, useRef } from "react"
 import { fetchApiFunc, genID } from "../../../util"
 import AppContext from "../../../AppContext"
 import { useState } from "react"
-import { getImgPath } from "../../../util"
+import { getImgPath, formattedVND } from "../../../util"
 import { IoCloseSharp } from "react-icons/io5";
 import Loading from "../../Global/Loading/Loading"
 import Notifier from "../../Global/Notifier/Notifier"
@@ -40,7 +40,7 @@ export default function OrderDetailForm() {
                     isOpen: true
                 });
 
-                if(!isError) {
+                if (!isError) {
                     setRefreshKey(genID());
                 }
 
@@ -125,6 +125,15 @@ export default function OrderDetailForm() {
                                     <label htmlFor="time-update-refundRequest-form" className="font-bold">Hết hạn thanh toán vào: </label>
                                     <input readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="time-update-refundRequest-form" type="text" defaultValue={formData ? formData.order.expriredat : ""} />
                                 </div>
+                                {
+                                    formData && formData.order.paidAt &&
+                                    <>
+                                        <div className="flex flex-row justify-between w-full gap-2">
+                                            <label htmlFor="time-update-refundRequest-form" className="font-bold">Đã thanh toán vào: </label>
+                                            <input readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="time-update-refundRequest-form" type="text" defaultValue={formData ? formData.order.paidAt : ""} />
+                                        </div>
+                                    </>
+                                }
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="time-update-refundRequest-form" className="font-bold">Coin dược sử dụng: </label>
                                     <input readOnly className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập tên sản phẩm..." id="time-update-refundRequest-form" type="text" defaultValue={formData ? formData.order.coinUsed : ""} />
@@ -149,24 +158,24 @@ export default function OrderDetailForm() {
                                                 <td className="px-4 py-4">{r.productVariantName}</td>
                                                 <td className="px-4 py-4">{r.discount}</td>
                                                 <td className="px-4 py-4">{r.quantity}</td>
-                                                <td className="px-4 py-4">{r.price}</td>
-                                                <td className="px-4 py-4">{r.quantity * r.price}</td>
+                                                <td className="px-4 py-4">{formattedVND.format(r.price)}</td>
+                                                <td className="px-4 py-4">{formattedVND.format(r.quantity * r.price)}</td>
                                             </tr>
                                         ))} />
 
-                                    <p className="font-bold my-3 md:my-5">Tổng cộng: {formData.orderItems.reduce((totalPrice, curItem) => totalPrice + curItem.price * curItem.quantity, 0)}</p>
+                                    <p className="font-bold my-3 md:my-5">Tổng cộng: {formattedVND.format(formData.orderItems.reduce((totalPrice, curItem) => totalPrice + curItem.price * curItem.quantity, 0))}</p>
                                     {
-                                        formData.order.status === "PAID" ? 
-                                            <button onClick={onHandleSendingOrder} 
-                                                    className="rounded-sm w-full bg-green-500 hover:bg-green-600 text-white px-1 py-0.5 md:px-2 md:py-1">Xác nhận đã gửi hàng</button> :
+                                        formData.order.status === "PAID" ?
+                                            <button onClick={onHandleSendingOrder}
+                                                className="rounded-sm w-full bg-green-500 hover:bg-green-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Xác nhận đã gửi hàng</button> :
                                             <></>
                                     }
-                                    
+
                                 </> : <></>
                             }
                         </section>
 
-                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5" onClick={closeForm}> <IoCloseSharp /></div>
+                        <div className="aspect-square rounded-full border w-max p-1 md:p-2 absolute top-0 right-0 m-2 md:m-5 cursor-pointer" onClick={closeForm}> <IoCloseSharp /></div>
                     </form>
                 </>
         }

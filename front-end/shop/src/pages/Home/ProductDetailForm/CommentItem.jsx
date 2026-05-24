@@ -1,4 +1,4 @@
-import { getImgPath } from "../../../util"
+import { getImgPath, genID } from "../../../util"
 import { IoMdStar } from "react-icons/io";
 
 getImgPath
@@ -15,7 +15,7 @@ export default function CommentItem({ item }) {
             </div>
             <div className="flex flex-row">
                 {
-                    Array.from({ length: item.comment.star }).map(() => <IoMdStar className="text-yellow-500 text-sm md:text-xl"></IoMdStar>)
+                    Array.from({ length: item.comment.star }).map(() => <IoMdStar key={genID()} className="text-yellow-500 text-sm md:text-xl"></IoMdStar>)
                 }
             </div>
         </div>

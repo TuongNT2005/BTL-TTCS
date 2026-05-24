@@ -65,7 +65,7 @@ public class JwtService {
     public String generateRefreshToken(User user) {
 
         Date issueTime = new Date();
-        Date expirationTime = Date.from(issueTime.toInstant().plusSeconds(60 * 60 * 24 * 30));
+        Date expirationTime = Date.from(issueTime.toInstant().plusSeconds(60 * 60 * 24));
 
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         
@@ -74,6 +74,7 @@ public class JwtService {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
             .subject(user.getUsername())
             .issueTime(issueTime)
+            .jwtID(UUID.randomUUID().toString())
             .expirationTime(expirationTime)
             .claim("msg", "Hello world")
             .claim("userId", user.getId())

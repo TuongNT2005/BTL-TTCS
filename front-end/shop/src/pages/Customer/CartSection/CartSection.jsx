@@ -10,7 +10,7 @@ import Notifier from "../../Global/Notifier/Notifier";
 import CartSectionContext from "./CartSectionContext";
 import CartSectionItem from "./CartSectionItem"
 
-export default function     CartSection() {
+export default function CartSection() {
 
     console.log("cartsection dc render");
 

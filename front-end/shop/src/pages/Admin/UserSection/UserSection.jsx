@@ -14,10 +14,10 @@ import UserDetailForm from "./UserDetailForm";
 
 export default function UsersSection({ keyword }) {
 
-    const [detailFormState, setDetailFormState] = useState({isDetailFormOpen: false, userId: 1});
+    const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, userId: 1 });
     const [curPage, setCurPage] = useState(1);
     const [totalPage, setTotalPage] = useState(100);
-    const { token} = useContext(AppContext);
+    const { token } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const [users, setUsers] = useState([
         { id: 1, username: "Tường Ng", email: "abc@gmail.com", coin: 100000, status: "ACTIVE" },
@@ -41,9 +41,9 @@ export default function UsersSection({ keyword }) {
         setCurPage(clickedPageNumber);
     }, [])
 
-    const onOpenDetailForm = function(e) {
+    const onOpenDetailForm = function (e) {
         const userId = e.target.parentElement.id;
-        setDetailFormState({isDetailFormOpen: true, userId: userId});
+        setDetailFormState({ isDetailFormOpen: true, userId: userId });
     }
 
     const searchData = useCallback(async function () {
@@ -60,6 +60,11 @@ export default function UsersSection({ keyword }) {
             setIsLoading(false);
         }
     }, [keyword, token, setIsLoading, curPage])
+
+    // Reset page khi keyword thay đổi
+    useEffect(() => {
+       setCurPage(1);
+    }, [keyword]);
 
     useEffect(() => {
         async function fetchData() {
@@ -91,7 +96,7 @@ export default function UsersSection({ keyword }) {
                                     </tr>
                                 ))}
                             />
-                            <Pagination currentPage={curPage} totalPage={totalPage} numberPerLine={5} onGoClickPage={onGoClickPage} onGoNextPage={onGoNextPage} onGoPrevPage={onGoPrevPage}/>
+                            <Pagination currentPage={curPage} totalPage={totalPage} numberPerLine={5} onGoClickPage={onGoClickPage} onGoNextPage={onGoNextPage} onGoPrevPage={onGoPrevPage} />
                         </Card>
                     </div>
             }

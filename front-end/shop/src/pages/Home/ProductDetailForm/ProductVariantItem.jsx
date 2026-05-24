@@ -50,7 +50,7 @@ export default function ProductVariantItem({item, productName}) {
                 
                 
             </div>
-            <button className="bg-green-500 hover:bg-green-600 p-1 rounded-sm text-xs text-white" id={item.id} onClick={onAddToCart}>Thêm vào giỏ</button>
+            <button className="bg-green-500 hover:bg-green-600 p-1 rounded-sm text-white cursor-pointer" id={item.id} onClick={onAddToCart}>Thêm vào giỏ</button>
             
         </div>
     </>

@@ -1,6 +1,7 @@
 package com.example.shop.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,6 @@ public class EventService {
     private EventRepository eventRepository;
     @Autowired
     private ProductRepository productRepository;
-    
 
     public Integer findDiscounts(Integer productId) {
         List<Event> events = eventRepository.findAllByProductId(productId);
@@ -50,16 +50,40 @@ public class EventService {
         }
     }
 
+    public void checkDuplicatedEvent(String title, Integer eventId) {
+        Optional<Event> event = eventRepository.findByTitleIgnoringCase(title);
+        if (event.isPresent()) {
+            Event exisitedEvent = event.get(); 
+            if(exisitedEvent.getId().equals(eventId)) {
+                return;
+            }
+            else {
+                throw new ActionUnavalibleException(String.format("Sự kiện: %s đã tồn tại trong hệ thống", title));
+            }
+        }
+    }
+
     public void checkTime(LocalDate startAt, LocalDate endAt) {
-        if(startAt == null || endAt == null) {
+        if (startAt == null || endAt == null) {
             throw new ActionUnavalibleException("Thời gian bắt đầu hoặc thời gian kết thúc là null!");
         }
         if (startAt.isAfter(endAt) || startAt.equals(endAt)) {
-            throw new ActionUnavalibleException("Thời gian bắt đầu không được trễ hơn hoặc trùng với thời gian kết thúc!");
+            throw new ActionUnavalibleException(
+                    "Thời gian bắt đầu không được trễ hơn hoặc trùng với thời gian kết thúc!");
         }
     }
 
     public Event createEvent(CreateEventRequest request) {
+
+         if(request.getDescription() == null ||
+            request.getTitle() == null ||
+            request.getDiscount() == null || request.getDiscount() <= 0 || request.getDiscount() > 30 ||
+            request.getStartAt() == null ||
+            request.getEndAt() == null ||
+            !Converter.StringToLocalDate(request.getStartAt()).isBefore(Converter.StringToLocalDate(request.getEndAt()))) {
+                throw new ActionUnavalibleException("Hãy điền đầy đủ và kiểm tra lai thông tin! Chú ý 0 < mức giảm <= 30 và ngày bắt đầu phải diễn ra rtuowcs ngày kết thúc sự kiện!");
+            }
+
         LocalDate startAt = Converter.StringToLocalDate(request.getStartAt());
         LocalDate endAt = Converter.StringToLocalDate(request.getEndAt());
         checkTime(startAt, endAt);
@@ -92,10 +116,21 @@ public class EventService {
     }
 
     public Event updateEvent(UpdateEventRequest request) {
+        if( request.getId() == null ||
+            request.getDescription() == null ||
+            request.getTitle() == null ||
+            request.getDiscount() == null || request.getDiscount() <= 0 || request.getDiscount() > 30 ||
+            request.getStartAt() == null ||
+            request.getEndAt() == null ||
+            !Converter.StringToLocalDate(request.getStartAt()).isBefore(Converter.StringToLocalDate(request.getEndAt()))) {
+                throw new ActionUnavalibleException("Hãy điền đầy đủ và kiểm tra lai thông tin! Chú ý 0 < mức giảm <= 30 và ngày bắt đầu phải diễn ra rtuowcs ngày kết thúc sự kiện!");
+            }
+
         Event event = findEventById(request.getId());
         LocalDate startAt = Converter.StringToLocalDate(request.getStartAt());
         LocalDate endAt = Converter.StringToLocalDate(request.getEndAt());
         checkTime(startAt, endAt);
+        checkDuplicatedEvent(request.getTitle(), request.getId());
         try {
             if (FileUtil.isFilePresent(request.getBackground())) {
                 FileUtil.deleteFile(event.getImage());
@@ -111,7 +146,9 @@ public class EventService {
             event.setTitle(request.getTitle());
 
             List<Integer> curDiscountedProductIds = productRepository.findAllProductIdByEventId(request.getId());
-            List<Integer> newDiscountedProductIds = request.getDiscountedProductIds() != null ? request.getDiscountedProductIds() : new ArrayList<>();
+            List<Integer> newDiscountedProductIds = request.getDiscountedProductIds() != null
+                    ? request.getDiscountedProductIds()
+                    : new ArrayList<>();
 
             for (Integer id : newDiscountedProductIds) {
                 if (!curDiscountedProductIds.contains(id)) {
@@ -137,13 +174,12 @@ public class EventService {
     public Page<Event> findAllEvents(Integer pageNumber, String keyword, String startAt, String endAt) {
         LocalDate startAt_ = Converter.StringToLocalDate(startAt);
         LocalDate endAt_ = Converter.StringToLocalDate(endAt);
-        if(startAt_ != null && endAt_ != null) {
+        if (startAt_ != null && endAt_ != null) {
             checkTime(startAt_, endAt_);
         }
         return eventRepository.findAllEvents(PageRequest.of(pageNumber, ConstantVal.itemPerPage), keyword, startAt_,
                 endAt_);
     }
-
 
     public List<Event> findAllEvent() {
         try {
