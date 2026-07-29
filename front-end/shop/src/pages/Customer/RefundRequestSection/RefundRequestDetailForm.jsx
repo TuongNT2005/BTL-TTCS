@@ -14,9 +14,10 @@ import { SiOutline } from "react-icons/si"
 export default function RefundRequestDetailForm() {
 
     const { isDetailFormOpen, refundRequestId, setDetailFormState} = useContext(RefundRequestContext);
+    const [notifierData, setNotifierData] = useState({ isError: false, title: "", message: "", isOpen: false });
 
     const ref = useRef(null);
-    let { setNotifierData, token } = useContext(AppContext);
+    let { token } = useContext(AppContext);
     let [formData, setFormData] = useState(null);
     let [image, setImage] = useState(null);
     let [isLoading, setIsLoading] = useState(false);
@@ -71,7 +72,7 @@ export default function RefundRequestDetailForm() {
         {
             isLoading ? <Loading></Loading> :
                 <>
-                    <Notifier></Notifier>
+                    <Notifier notifierData={notifierData} setNotifierData={setNotifierData}></Notifier>
                     <form action="" id="update-refundRequest-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Chi tiết sản phẩm</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">

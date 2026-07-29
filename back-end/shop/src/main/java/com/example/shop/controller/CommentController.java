@@ -16,7 +16,7 @@ import com.example.shop.dto.response.CommentDTO;
 import com.example.shop.dto.response.CreateNewCommentResponse;
 import com.example.shop.entity.Comment;
 import com.example.shop.entity.User;
-import com.example.shop.mapper.UserMapper;
+import com.example.shop.mapper.CommentMapper;
 import com.example.shop.service.AuthService;
 import com.example.shop.service.CommentService;
 import com.example.shop.service.UserService;
@@ -33,10 +33,10 @@ public class CommentController {
     @Autowired private CommentService commentService;
     @Autowired private UserService userService;
     @Autowired private AuthService authService;
-    @Autowired private UserMapper userMapper;
+    @Autowired private CommentMapper commentMapper;
 
     @PostMapping(value = "/create", consumes = "multipart/form-data")
-    public ResponseEntity<?> postMethodName(CreateNewCommentRequest request) {
+    public ResponseEntity<?> createComment(CreateNewCommentRequest request) {
         
         try {
             Integer userId = authService.getAuthenticatedUserId();
@@ -60,7 +60,7 @@ public class CommentController {
         List<CommentDTO> commentDTOs = new ArrayList<>();
         for(Comment comment : comments) {
             User user = userService.findUserById(comment.getUserId());
-            commentDTOs.add(new CommentDTO(userMapper.toUserDTO(user), comment));
+            commentDTOs.add(commentMapper.toCommentDTO(comment, user));
         }
 
         ApiResponse<List<CommentDTO>> response = ApiResponse.<List<CommentDTO>>builder()

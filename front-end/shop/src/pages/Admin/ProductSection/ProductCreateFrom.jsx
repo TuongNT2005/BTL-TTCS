@@ -5,7 +5,7 @@ import api from "../../../api"
 import AppContext from "../../../AppContext"
 import { useState } from "react"
 import { IoCloseSharp } from "react-icons/io5";
-import uploadDefaultImg from "../../../../../../uploads/uploadDefault.png"
+import uploadDefaultImg from "/uploadDefault.png"
 import Loading from "../../Global/Loading/Loading"
 import Notifier from "../../Global/Notifier/Notifier"
 
@@ -122,7 +122,7 @@ export default function ProductCreateForm() {
                                         <option className="border rounded-lg border-violet-200" value="PANTS" >PANTS</option>
                                         <option className="border rounded-lg border-violet-200" value="DRESS">DRESS</option>
                                         <option className="border rounded-lg border-violet-200" value="SET">SET</option>
-                                        <option className="border rounded-lg border-violet-200" value="SKIRT">SKIRT</option>
+                                        <option className="border rounded-lg border-violet-200" value="SHIRT">SHIRT</option>
                                         <option className="border rounded-lg border-violet-200" value="SPORTSWEAR">SPORTSWEAR</option>
                                     </select>
                                 </div>
@@ -132,7 +132,7 @@ export default function ProductCreateForm() {
                                     <textarea required name="description" id="description-product-create-form" type="text" placeholder="Nhập mô tả..." className="resize-y outline-none h-32 w-full p-1 rounded-lg border-violet-200 border" />
                                 </div>
 
-                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1">Cập nhập</button>
+                                <button onClick={sendForm} className="rounded-sm w-full bg-blue-500 hover:bg-blue-600 text-white px-1 py-0.5 md:px-2 md:py-1 cursor-pointer">Cập nhập</button>
                             </div>
                         </section>
 

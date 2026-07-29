@@ -24,12 +24,16 @@ export default function RefundRequestSection() {
     const [status, setStatus] = useState("");
 
     const onOpenRequestDetailForm = useCallback((e) => {
+        e.preventDefault();
+
         const refundRequestId = e.target.id;
         console.log(refundRequestId);
         setDetailFormState({ isDetailFormOpen: true, refundRequestId: refundRequestId });
     }, [])
 
     const onChangeStatus = useCallback((e) => {
+        e.preventDefault();
+
         const curStatus = e.target.value;
         console.log(curStatus);
         setStatus(curStatus);
@@ -83,7 +87,7 @@ export default function RefundRequestSection() {
         }
 
         doFetcRefundRequests();
-    }, [fetchUserRefundRequests, status, curPage])
+    }, [fetchUserRefundRequests])
 
     return <RefundRequestContext.Provider value={{ ...detailFormState, setDetailFormState }}>
         <>

@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect, useContext } from "react";
+import { useState, useCallback, useEffect, useContext, useRef } from "react";
 import api from "../../../api";
-import { fetchApiFunc } from "../../../util";
+import { fetchApiFunc, genID } from "../../../util";
 
 import Card from "../Card";
 import Table from "../Table";
@@ -14,6 +14,8 @@ import UserDetailForm from "./UserDetailForm";
 
 export default function UsersSection({ keyword }) {
 
+    const prevKeyword = useRef(keyword);
+    const [refreshKey, setRefreshKey] = useState("");
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, userId: 1 });
     const [curPage, setCurPage] = useState(1);
     const [totalPage, setTotalPage] = useState(100);
@@ -61,19 +63,24 @@ export default function UsersSection({ keyword }) {
         }
     }, [keyword, token, setIsLoading, curPage])
 
-    // Reset page khi keyword thay đổi
     useEffect(() => {
-       setCurPage(1);
-    }, [keyword]);
 
-    useEffect(() => {
+        if (prevKeyword.current !== keyword) {
+            if (curPage !== 1) {
+                setCurPage(1);
+            }
+
+            prevKeyword.current = keyword;
+            setRefreshKey(genID());
+        }
+
         async function fetchData() {
             const res = await searchData();
             setTotalPage(res.data.totalPages);
         }
 
         fetchData();
-    }, [searchData])
+    }, [searchData, keyword, curPage, refreshKey])
 
 
     return <UserSectionContext.Provider value={{ ...detailFormState, setDetailFormState }}>

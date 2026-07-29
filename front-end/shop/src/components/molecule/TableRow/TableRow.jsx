@@ -1,6 +1,6 @@
 import { cn, isImg, genID, getImgPath } from "../../../util";
 import TableCell from "../../atom/TableCell/TableCell";
-import altImg from "../../../../../../uploads/default.jpg";
+import altImg from "/default.jpg";
 import Text from "../../atom/Text/Text";
 
 

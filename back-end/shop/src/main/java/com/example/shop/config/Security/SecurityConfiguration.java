@@ -36,17 +36,16 @@ public class SecurityConfiguration {
         http
         .cors(cors -> {})
         .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                .requestMatchers("/test/**").permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/payment/**").permitAll()
-                .requestMatchers("/uploads/**").permitAll()
-                .anyRequest().authenticated()
-            )
-             .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-         );
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers(HttpMethod.OPTIONS).permitAll()
+            .requestMatchers("/test/**").permitAll()
+            .requestMatchers("/error").permitAll()
+            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/payment/**").permitAll()
+            .requestMatchers("/uploads/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
 

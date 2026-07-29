@@ -2,6 +2,7 @@
 
 export default {
     login: "http://localhost:8080/auth/login",
+    logout: "http://localhost:8080/auth/logout",
     registration: "http://localhost:8080/auth/registration",
     upload: "http://localhost:8080/uploads",
     getUser: "http://localhost:8080/users/user",

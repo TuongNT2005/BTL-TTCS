@@ -68,7 +68,7 @@ export default function UserDetailForm() {
                     <form action="" id="user-detail-form">
                         <p className="pb-2 md:pb-5 text-2xl md:3xl font-bold">Thông tin khách hàng</p>
                         <section className="h-full flex flex-col md:flex-row justify-center items-center">
-                            <img src={getImgPath(formData ? formData.image : "")} alt="image" className="w-2xs md:w-xs m-2" />
+                            <img src={getImgPath(formData ? formData.avatar : "")} alt="image" className="w-2xs md:w-xs m-2" />
                             <div className="flex flex-col h-full justify-center items-start p-2 md:p-5 gap-2">
                                 <div className="flex flex-row justify-between w-full gap-2">
                                     <label htmlFor="id-user-detail-form" className="font-bold">Mã khách hàng: </label>

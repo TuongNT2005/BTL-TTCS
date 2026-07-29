@@ -1,13 +1,13 @@
 import { FaPlus } from "react-icons/fa";
 
 import Card from "../Card";
-import { useState, useContext, useCallback, useEffect } from "react";
+import { useState, useContext, useCallback, useEffect, useRef } from "react";
 import Table from "../Table";
 import Badge from "../../Global/Bagde/Bagde";
 import ActionButtons from "../ActionButton";
 import Pagination from "../Pagination";
 import AppContext from "../../../AppContext";
-import { getImgPath, fetchApiFunc } from "../../../util";
+import { getImgPath, fetchApiFunc, genID } from "../../../util";
 import api from "../../../api";
 import Loading from "../../Global/Loading/Loading";
 import WareHouseSectionContext from "./WareHouseSectionContext";
@@ -17,6 +17,7 @@ import { IoMdReturnLeft } from "react-icons/io";
 
 export default function WareHouseSection({ keyword }) {
 
+    const prevKeyword = useRef(keyword);
     const { token } = useContext(AppContext);
     const [productList, setProductList] = useState("");
     const [isImportFormOpen, setIsImportFormOpen] = useState(false);
@@ -77,18 +78,24 @@ export default function WareHouseSection({ keyword }) {
     }, [keyword, token, setIsLoading, curPage])
 
     useEffect(() => {
+
+        if(prevKeyword.current !== keyword) {
+            if(curPage !== 1) {
+                setCurPage(1);
+            }
+
+            prevKeyword.current = keyword;
+            setRefreshKey(genID());
+        }
+
         async function fetchData() {
             await searchData();
             return;
         }
 
         fetchData();
-    }, [searchData, refreshKey])
+    }, [searchData, refreshKey, curPage, keyword])
 
-    // Reset page khi keyword thay đổi
-    useEffect(() => {
-        setCurPage(1);
-    }, [keyword]);
 
     return <WareHouseSectionContext.Provider value={{ ...editFormState, setEditFormState, refreshKey, setRefreshKey, setIsImportFormOpen, productList }}>
         <>

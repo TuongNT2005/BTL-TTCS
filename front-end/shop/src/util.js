@@ -1,7 +1,7 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import api from "./api";
-import defaultImg from "../../../uploads/default.jpg";
+import defaultImg from "/default.jpg";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -38,7 +38,7 @@ export async function fetchApiFunc(data = null, apiUrl, apiMethod, token = "") {
     const renewTokenResponse = await fetch(api.renewToken, options_);
 
     if (renewTokenResponse.status !== 200) {
-      // window.location.href = '/';
+      window.location.href = '/';
       return;
     }
 
@@ -46,9 +46,11 @@ export async function fetchApiFunc(data = null, apiUrl, apiMethod, token = "") {
     newToken = renewTokenResult.data;
 
     // Tạo ra 1 event để component react bắt
-    const event = new CustomEvent('onTokenRefreshed', { newToken: newToken });
+    const event = new CustomEvent('onTokenRefreshed', {
+      detail: { newToken: newToken }  // Bọc trong detail
+    });
     window.dispatchEvent(event);
-
+    
     options = {
       method: method,
       headers: {

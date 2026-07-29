@@ -10,7 +10,7 @@ import Input from "../../atom/input/Input"
 import { IoCloseSharp } from "react-icons/io5";
 import Notifier from "../../organism/Notifier/Notifier"
 import Loading from "../../organism/Loading/Loading"
-import uploadDefaultImg from "../../../../../../uploads/uploadDefault.png"
+import uploadDefaultImg from "/uploadDefault.png"
 
 export default function ProductVariantImportForm() {
 

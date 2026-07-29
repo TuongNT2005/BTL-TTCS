@@ -1,5 +1,5 @@
 package com.example.shop.enums;
 
 public enum Category {
-    PANTS, SHIRT, DRESS, SET, SPORTWEAR
+    PANTS, SHIRT, DRESS, SET, SPORTSWEAR
 }

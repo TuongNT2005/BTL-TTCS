@@ -4,13 +4,13 @@ import { FiCheckCircle } from "react-icons/fi";
 import { IoShieldCheckmark } from "react-icons/io5";
 
 import Card from "../Card";
-import { useState, useContext, useCallback, useEffect } from "react";
+import { useState, useContext, useCallback, useEffect, useRef } from "react";
 import Table from "../Table";
 import Badge from "../../Global/Bagde/Bagde";
 import ActionButtons from "../ActionButton";
 import Pagination from "../Pagination";
 import AppContext from "../../../AppContext";
-import { fetchApiFunc } from "../../../util";
+import { fetchApiFunc, genID } from "../../../util";
 import api from "../../../api";
 import Loading from "../../Global/Loading/Loading";
 import RefundSectionContext from "./RefundSectionContext";
@@ -19,6 +19,7 @@ import RefundRequestDetailForm from "./RefundRequestDetailForm";
 
 export default function RefundSection({ keyword }) {
 
+    const prevKeyword = useRef(keyword);
     const { token } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const [detailFormState, setDetailFormState] = useState({ isDetailFormOpen: false, refundRequestId: 1 });
@@ -76,19 +77,24 @@ export default function RefundSection({ keyword }) {
     }, [keyword, token, setIsLoading, curPage, statusFilter])
 
     useEffect(() => {
+
+        if (prevKeyword.current !== keyword) {
+            if (curPage !== 1) {
+                setCurPage(1);
+            }
+
+            prevKeyword.current = keyword;
+            setRefreshKey(genID());
+        }
+
+
         async function fetchData() {
             const res = await searchData();
             setTotalPage(res.data.totalPages);
         }
 
         fetchData();
-    }, [searchData, refreshKey])
-
-    // Reset page khi keyword thay đổi
-    useEffect(() => {
-        setCurPage(1);
-    }, [keyword]);
-
+    }, [searchData, refreshKey, curPage, keyword])
 
     return <RefundSectionContext.Provider value={{ ...detailFormState, setRefreshKey, setDetailFormState }}>
         {detailFormState.isDetailFormOpen ? <RefundRequestDetailForm></RefundRequestDetailForm> : <></>}

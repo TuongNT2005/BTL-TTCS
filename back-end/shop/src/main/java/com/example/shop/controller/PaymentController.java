@@ -1,5 +1,6 @@
 package com.example.shop.controller;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +19,12 @@ import com.example.shop.service.OrderService;
 import com.example.shop.service.VnpayPaymentService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @Controller
 @RequestMapping("/payment")
@@ -36,7 +37,7 @@ public class PaymentController {
     @GetMapping("/gen-url/{orderId}")
     public ResponseEntity<?> genPaymentUrl(@PathVariable(name = "orderId") Integer orderId, HttpServletRequest req)
             throws UnsupportedEncodingException {
-            
+
         VnPayParameters parameters = vnpayPaymentService.getParameters(orderId);
         String paymentUrl = vnpayPaymentService.genPaymentUrl(req, parameters);
 
@@ -53,29 +54,24 @@ public class PaymentController {
     }
 
     @GetMapping("/handle-result")
-    public ResponseEntity<?> handleResult(HttpServletRequest request) throws UnsupportedEncodingException {
-        Map<String, String> paymentResult = vnpayPaymentService.getResult(request);
-        Order order = orderService.comfirmPurchasedOrder(paymentResult);
+    public void handleResult(HttpServletRequest req, HttpServletResponse resp)
+            throws UnsupportedEncodingException {
+        Map<String, String> paymentResult = vnpayPaymentService.getResult(req);
+        orderService.comfirmPurchasedOrder(paymentResult);
 
-        PaymentResponse paymentResponse = PaymentResponse.builder()
-                .orderId(paymentResult.get("vnp_TxnRef"))
-                .totalAmout(paymentResult.get("vnp_Amount"))
-                .bankInfor(paymentResult.get("vnp_BankTranNo"))
-                .cardType(paymentResult.get("vnp_CardType"))
-                .payDate(paymentResult.get("vnp_PayDate"))
-                .message(paymentResult.get("vnp_OrderInfo"))
-                .transactionNo(paymentResult.get("vnp_TransactionNo"))
-                .status(order.getStatus().toString().equals("PAID") ? "Thanh toán thành công!"
-                        : "Thanh toán thất bại")
-                .build();
+        String vnp_ResponseCode = paymentResult.get("vnp_ResponseCode");
+        String vnp_TransactionStatus = paymentResult.get("vnp_TransactionStatus");
+        String vnp_TxnRef = paymentResult.get("vnp_TxnRef");
 
-        ApiResponse<PaymentResponse> response = ApiResponse.<PaymentResponse>builder()
-            .code(200)
-            .message(paymentResponse.getMessage())
-            .data(paymentResponse)
-            .build();
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        try {
+            resp.sendRedirect(
+                    "http://localhost:5173/payment"
+                            + "?vnp_ResponseCode=" + vnp_ResponseCode
+                            + "&vnp_TransactionStatus=" + vnp_TransactionStatus
+                            + "&vnp_TxnRef=" + vnp_TxnRef);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @GetMapping("/test-ipnUrl")
@@ -83,5 +79,5 @@ public class PaymentController {
         System.out.println("hello");
         return new String();
     }
-    
+
 }

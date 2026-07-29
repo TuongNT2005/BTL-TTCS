@@ -1,11 +1,11 @@
 
 import { FaPlus } from "react-icons/fa";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Card from "../Card";
 import Table from "../Table";
 import ActionButtons from "../ActionButton";
 import Pagination from "../Pagination";
-import { fetchApiFunc } from "../../../util";
+import { fetchApiFunc, genID } from "../../../util";
 import api from "../../../api";
 import Loading from "../../Global/Loading/Loading";
 import AppContext from "../../../AppContext";
@@ -17,6 +17,7 @@ import ProductCreateForm from "./ProductCreateFrom";
 
 export default function ProductsSection({ keyword }) {
 
+    const prevKeyWord = useRef(keyword);
     const { token } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
@@ -78,19 +79,25 @@ export default function ProductsSection({ keyword }) {
         }
     }, [keyword, token, setIsLoading, curPage, curCategory])
 
-    // Reset page khi keyword thay đổi
     useEffect(() => {
-        setCurPage(1);
-    }, [keyword]);
 
-    useEffect(() => {
+        if(prevKeyWord.current !== keyword) {
+            if(curPage !== 1) {
+                setCurPage(1);
+            }
+            
+            prevKeyWord.current = keyword;
+            setRefreshKey(genID());
+            return;
+        }
+
         async function fetchData() {
             const res = await searchData();
             setTotalPage(res.data.totalPages);
         }
 
         fetchData();
-    }, [searchData, refreshKey, curCategory])
+    }, [searchData, refreshKey, curCategory, keyword, curPage])
 
     return <ProductSectionContext.Provider value={{ ...editFormState, setEditFormState, refreshKey, setRefreshKey, isCreateFormOpen, setIsCreateFormOpen }}>
         <>

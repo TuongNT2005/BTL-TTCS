@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext, useCallback } from "react"
+import { useState, useEffect, useContext, useCallback, useRef } from "react"
 import SectionHeader from "../SectionHeader";
 import Pagination from "../../Admin/Pagination";
 import Container from "../Container";
 import ProductCard from "../ProductCard";
 import Slider from "../Slider";
 import api from "../../../api";
-import { fetchApiFunc } from "../../../util";
+import { fetchApiFunc, genID } from "../../../util";
 import AppContext from "../../../AppContext";
 import Loading from "../../Global/Loading/Loading";
 import NotFoundData from "../../Global/NotFoundData/NotFoundData";
@@ -29,6 +29,8 @@ export default function SearchResultSection({ keyword, category, setIsSearching 
         image: `https://placehold.co/600x800/f8d7da/8b5cf6?text=Ao+dai+${i + 1}`,
     })));
 
+    const prevKeyword = useRef(keyword);
+    const [refreshKey, setRefreshKey] = useState("");
     const { token } = useContext(AppContext);
     const [curPage, setCurPage] = useState(1);
     const [totalPage, setTotalPage] = useState(100);
@@ -80,12 +82,22 @@ export default function SearchResultSection({ keyword, category, setIsSearching 
     }, [category, curPage, keyword, token]);
 
     useEffect(() => {
+
+        if (prevKeyword.current !== keyword) {
+            if (curPage !== 1) {
+                setCurPage(1);
+            }
+
+            prevKeyword.current = keyword;
+            setRefreshKey(genID());
+        }
+
         async function fetchData() {
             await searchData();
         }
 
         fetchData();
-    }, [searchData])
+    }, [searchData, keyword, refreshKey, curPage])
 
     useEffect(() => {
         setCurPage(1);

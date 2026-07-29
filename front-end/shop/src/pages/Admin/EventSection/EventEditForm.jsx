@@ -247,7 +247,7 @@ export default function EventEditForm() {
                                     <Badge value={formData ? getBadgeValue(formData.startAt, formData.endAt) : "UNAVALIBLE"} />
                                 </div>
                                 <div className="flex flex-col justify-center items-start w-full">
-                                    <label htmlFor="description-update-event-form" className="font-bold">Mô tả sản phẩm: </label>
+                                    <label htmlFor="description-update-event-form" className="font-bold">Mô tả sự kiện: </label>
                                     <textarea required name="description" id="description-update-event-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.description : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200 hide-scrollbar" />
                                 </div>
 

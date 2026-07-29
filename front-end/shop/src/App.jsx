@@ -5,12 +5,10 @@ import LoginPage from "./pages/Login/LoginPage";
 import RegistrationPage from "./pages/Registration/RegistrationPage";
 import AppContext from "./AppContext";
 import { useState, useEffect } from "react";
-import AdminPage from "./components/template/AdminPage/AdminPage";
-import AdminPageProductTab from "./components/template/AdminProductTab/AdminProductTab";
-import AdminProductCVariantTab from "./components/template/AdminProductVariantTab/AdminProductVariantTab";
 import Admin from "./pages/Admin/Admin";
 import Home from "./pages/Home/Home";
 import CustomerPage from "./pages/Customer/CustomerPage";
+import PaymentResult from "./pages/Payment/Payment";
 
 function App() {
 
@@ -22,9 +20,10 @@ function App() {
   useEffect(() => {
     // Hàm xử lý khi nghe thấy tín hiệu từ util.js
     const handleTokenRefresh = (event) => {
-      const newToken = event.newToken; 
+      console.log(event);
+      const newToken = event.detail.newToken; 
       setToken(newToken); 
-      console.log("Đã cập nhật token mới thành công!");
+      console.log("Đã cập nhật token mới thành công!" + newToken);
     };
 
     window.addEventListener('onTokenRefreshed', handleTokenRefresh);
@@ -40,10 +39,10 @@ function App() {
         <Routes>
           <Route index element={<LoginPage />} />
           <Route path="ad" element={<Admin></Admin>}></Route>
-          <Route path="warehouse" element={<AdminProductCVariantTab></AdminProductCVariantTab>}></Route>
           <Route path="registration" element={<RegistrationPage />}></Route>
           <Route path="home" element={<Home></Home>}></Route>
           <Route path="customer" element={<CustomerPage></CustomerPage>}></Route>
+          <Route path="payment" element={<PaymentResult />}></Route>
         </Routes>
 
       </>

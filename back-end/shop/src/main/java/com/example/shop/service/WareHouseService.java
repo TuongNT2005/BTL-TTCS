@@ -15,7 +15,6 @@ import com.example.shop.exception.ActionUnavalibleException;
 import com.example.shop.repository.ImportHistoryRepository;
 import com.example.shop.repository.ProductVariantRepository;
 
-
 @Service
 public class WareHouseService {
 
@@ -28,16 +27,17 @@ public class WareHouseService {
 
     public ProductVariant importProductVariant(ImportProductVariantRequest request) {
 
-        if( request.getColor() == null ||
-            request.getProductId() == null ||
-            request.getQuantity() == null || request.getQuantity() <= 0 ||
-            request.getImportCost() == null || request.getImportCost() <= 0 ||
-            request.getSize() == null) {
-                throw new ActionUnavalibleException("Hãy nhập đầy đủ và kiểm tra lại thông tin! Các trường giá cả phải > 0!");
-            }
+        if (request.getColor() == null ||
+                request.getProductId() == null ||
+                request.getQuantity() == null || request.getQuantity() <= 0 ||
+                request.getImportCost() == null || request.getImportCost() <= 0 ||
+                request.getSize() == null) {
+            throw new ActionUnavalibleException(
+                    "Hãy nhập đầy đủ và kiểm tra lại thông tin! Các trường giá cả phải > 0!");
+        }
 
         Integer colorId = colorService.findColorId(request.getColor());
-        if(colorId == null) {
+        if (colorId == null) {
             colorId = colorService.createNewColor(request.getColor()).getId();
         }
         try {
@@ -53,9 +53,13 @@ public class WareHouseService {
                         .importCost(request.getImportCost())
                         .purchasePrice((long) Math.floor((request.getImportCost() * 1.15) / 1000) * 1000l)
                         .quantity(request.getQuantity())
-                        .size(Size.valueOf(request.getSize()))   
+                        .size(Size.valueOf(request.getSize()))
                         .status(ProductVariantStatus.AVALIBLE)
                         .build();
+
+                // productVariantRepository.save(productVariant);
+                // productVariant = productVariantRepository.findByProductIdAndColorIdAndSize(
+                // request.getProductId(), colorId, Size.valueOf(request.getSize())).get();
             }
 
             else {
@@ -67,14 +71,15 @@ public class WareHouseService {
                 productVariant.setImportCost(avgImportPrice);
             }
 
+            productVariant = productVariantRepository.save(productVariant);
+
             ImportHistory importHistory = ImportHistory.builder()
-                                            .productVariantId(productVariant.getId())
-                                            .importAt(LocalDateTime.now())
-                                            .price(request.getImportCost())
-                                            .quantity(request.getQuantity())
-                                            .build();
-            
-            productVariantRepository.save(productVariant);
+                    .productVariantId(productVariant.getId())
+                    .importAt(LocalDateTime.now())
+                    .price(request.getImportCost())
+                    .quantity(request.getQuantity())
+                    .build();
+
             importHistoryRepository.save(importHistory);
 
             return productVariant;

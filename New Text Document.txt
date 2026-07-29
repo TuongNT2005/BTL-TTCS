@@ -1,0 +1,6 @@
+18mbjiw9xn@yzcalo.com
+
+Thông tin cấu hình:
+Terminal ID / Mã Website (vnp_TmnCode): YZGEIZT1
+
+Secret Key / Chuỗi bí mật tạo checksum (vnp_HashSecret): 6ZAVG01K77Z9DP7WCIUXBGUOPJ9ZSS1Y

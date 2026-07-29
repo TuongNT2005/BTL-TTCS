@@ -150,7 +150,7 @@ export default function ProductEditForm() {
                                     <label htmlFor="category" className="font-bold">Phân loại: </label>
                                     {/* <input className="border px-1 py-0.5" id="category" type="text" defaultValue={formData ? formData.product.category : ""} /> */}
                                     <select required id="category-update-product-form" name="category" defaultValue={formData ? formData.product.category : ""} className="border rounded-lg border-violet-200">
-                                        {formData && formData.categories.map(category => <option className="rounded-lg border-violet-200" key={genID()} value={category}>{category}</option>)}
+                                        {formData && formData.categories.map(category => <option className="rounded-lg border-violet-200" key={genID()} value={category} selected={category === formData.product.category}>{category}</option>)}
                                     </select>
                                 </div>
 

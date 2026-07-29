@@ -1,4 +1,4 @@
-import React, {useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { IoBarChart } from "react-icons/io5";
 import { FaBoxArchive } from "react-icons/fa6";
 import { FaCalendarDays } from "react-icons/fa6";
@@ -12,6 +12,7 @@ import { FaUser } from "react-icons/fa";
 import { LuClock3 } from "react-icons/lu";
 import { IoMail } from "react-icons/io5";
 import { RiShoppingBag3Fill } from "react-icons/ri";
+import { RiLogoutBoxLine } from "react-icons/ri";
 
 import ProductsSection from "./ProductSection/ProductsSection";
 import Card from "./Card";
@@ -23,6 +24,8 @@ import OrderSection from "./OrderSection/OrderSection";
 import AppContext from "../../AppContext";
 import { useContext } from "react";
 import DashBoard from "./DashBoard/DashBoard";
+import { useNavigate } from "react-router-dom";
+import api from "../../api";
 
 const menuItems = [
     { key: "dashboard", label: "Báo cáo", icon: TbLayoutDashboardFilled },
@@ -31,7 +34,8 @@ const menuItems = [
     { key: "users", label: "Người dùng", icon: FaUser },
     { key: "events", label: "Sự kiện", icon: FaCalendarDays },
     { key: "refunds", label: "Hoàn tiền", icon: FiRefreshCcw },
-    { key: "orders", label: "Đơn hàng", icon: RiShoppingBag3Fill }
+    { key: "orders", label: "Đơn hàng", icon: RiShoppingBag3Fill },
+    { key: "", label: "Logout", icon: RiLogoutBoxLine }
 ];
 
 
@@ -40,7 +44,7 @@ function Container({ children }) {
     return <div className="min-h-screen bg-[#f8f7ff] text-slate-800">{children}</div>;
 }
 
-function Sidebar({ active, setActive }) {
+function Sidebar({ active, onLogout, onGoToSection }) {
     return (
         <aside className="hidden w-72 shrink-0 border-r border-violet-100 bg-white xl:flex xl:flex-col sticky top-0 left-0">
             <div className="border-b border-violet-100 p-6">
@@ -54,7 +58,7 @@ function Sidebar({ active, setActive }) {
                     return (
                         <button
                             key={item.key}
-                            onClick={() => setActive(item.key)}
+                            onClick={item.key === "" ? onLogout : () => onGoToSection(item.key)}
                             className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${isActive ? "bg-violet-600 text-white shadow-lg" : "text-slate-600 hover:bg-violet-50 hover:text-violet-700 cursor-pointer"
                                 }`}
                         >
@@ -68,7 +72,7 @@ function Sidebar({ active, setActive }) {
     );
 }
 
-function Topbar({ active, setActive, setKeyword, authUser }) {
+function Topbar({ active, onLogout, onGoToSection, setKeyword, authUser }) {
 
     const timer = useRef(null);
 
@@ -78,7 +82,7 @@ function Topbar({ active, setActive, setKeyword, authUser }) {
             setKeyword(e.target.value);
         }, 500)
     }, [setKeyword])
-    
+
     return (
         <div className="sticky top-0 left-0 z-30 border-b border-violet-100 bg-white/90 backdrop-blur">
             <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
@@ -109,7 +113,7 @@ function Topbar({ active, setActive, setKeyword, authUser }) {
                 {menuItems.map((item) => (
                     <button
                         key={item.key}
-                        onClick={() => setActive(item.key)}
+                        onClick={item.key === "" ? onLogout : () => onGoToSection(item.key)}
                         className={`whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold ${active === item.key ? "bg-violet-600 text-white" : "bg-white text-slate-600 border border-violet-100"}`}
                     >
                         {item.label}
@@ -124,16 +128,33 @@ function Topbar({ active, setActive, setKeyword, authUser }) {
 export default function Admin() {
     const [active, setActive] = useState("products");
     const [keyword, setKeyword] = useState("");
-    const {authUser} = useContext(AppContext);
+    const { authUser, token } = useContext(AppContext);
+    const navigate = useNavigate();
+
+
+    async function onLogout() {
+        await fetch(api.logout, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            credentials: "include"
+        })
+        navigate("/");
+    }
+
+    function onGoToSection(sectionKey) {
+        setActive(sectionKey)
+    }
 
     console.log(authUser);
 
     return (
         <Container>
             <div className="flex relative h-screen">
-                <Sidebar active={active} setActive={setActive} />
+                <Sidebar active={active} onGoToSection={onGoToSection} onLogout={onLogout} />
                 <div className="min-w-0 flex-1 flex flex-col">
-                    <Topbar active={active} setActive={setActive} setKeyword={setKeyword} authUser={authUser}/>
+                    <Topbar active={active} onGoToSection={onGoToSection} onLogout={onLogout} setKeyword={setKeyword} authUser={authUser} />
                     <main className="space-y-6 p-4 sm:p-6 lg:p-8 flex-1 overflow-hidden">
                         {active === "products" && <ProductsSection keyword={keyword} />}
                         {active === "inventory" && <WareHouseSection keyword={keyword} />}

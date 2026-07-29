@@ -137,7 +137,7 @@ export default function RefundRequestDetailForm() {
                                 </div>
 
                                 <div className="flex flex-col justify-center items-start w-full">
-                                    <label htmlFor="reason-detail-refundRequest-form" className="font-bold">Mô tả sản phẩm: </label>
+                                    <label htmlFor="reason-detail-refundRequest-form" className="font-bold">Lý do: </label>
                                     <textarea readOnly name="reason" id="reason-detail-refundRequest-form" type="text" placeholder="Nhập mô tả..." defaultValue={formData ? formData.reason : ""} className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
                                 </div>
                                 {

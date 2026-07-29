@@ -9,7 +9,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -24,7 +23,6 @@ import com.example.shop.service.UserService;
 
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -57,7 +55,7 @@ public class AuthController {
             ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", response.getRefreshToken())
                 .httpOnly(true)
                 .secure(false)
-                .path("/auth/refresh")
+                .path("/auth")
                 .maxAge(60 * 60 * 24)
                 .sameSite("None")
                 .secure(true)
@@ -73,10 +71,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout(@RequestHeader("Authorization") String token) throws ParseException {
-        System.out.println(token);
-        String jwtToken = token.substring(7);
-        authService.logout(jwtToken);
+    public void logout(@RequestHeader("Authorization") String authHeader, @CookieValue(name = "refreshToken", required = false) String refreshToken) throws ParseException {
+        System.out.println(authHeader);
+        
+        String accessToken = authHeader.substring(7);
+        
+        System.out.println(refreshToken);
+        
+
+        authService.logout(accessToken);
+        authService.logout(refreshToken);
     }
     
     @GetMapping("/refresh")

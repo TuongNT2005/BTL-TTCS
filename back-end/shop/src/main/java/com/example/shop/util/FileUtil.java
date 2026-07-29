@@ -13,9 +13,7 @@ public class FileUtil {
     public static String getPath(String nameOfFile) {
         String folderName = nameOfFile.split("_")[0];
         Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path parentPath = currentPath.getParent();
-        System.out.println(parentPath.toString() + "/uploads/" + folderName + "/" + nameOfFile);
-        return parentPath.toString() + "/uploads/" + folderName + "/" + nameOfFile;
+        return currentPath.toString() + "/uploads/" + folderName + "/" + nameOfFile;
     }
 
     public static void deleteFile(String nameOfFile) {
@@ -41,8 +39,7 @@ public class FileUtil {
         }
 
         Path currentPath = Paths.get(System.getProperty("user.dir"));
-        Path parentPath = currentPath.getParent();
-        String uploadDir = parentPath.toString() + "/uploads/" + folderName + "/";
+        String uploadDir = currentPath.toString() + "/uploads/" + folderName + "/";
 
         File dir = new File(uploadDir);
 

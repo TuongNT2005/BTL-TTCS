@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    build:
+      context: ./csdl
+      dockerfile: Dockerfile 
+    image: clothing_shop_db  
+    container_name: clothing_shop_db
+    command: --lower_case_table_names=1
+    ports:
+      - "3307:3306"
+
+  backend-app:
+    build: 
+      context: ./back-end
+      dockerfile: shop/Dockerfile
+    image: clothing_shop_backend  
+    container_name: clothing_shop_be
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    ports:
+      - "8080:8080"
+
+  frontend-app:
+    build:
+      context: ./front-end/shop
+      dockerfile: Dockerfile
+    image: clothing_shop_frontend
+    container_name: clothing_shop_fe
+    ports:
+      - "5173:5173"

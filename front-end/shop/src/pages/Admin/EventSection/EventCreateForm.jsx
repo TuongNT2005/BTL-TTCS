@@ -5,7 +5,7 @@ import api from "../../../api"
 import AppContext from "../../../AppContext"
 import { useState } from "react"
 import { IoCloseSharp } from "react-icons/io5";
-import uploadDefaultImg from "../../../../../../uploads/uploadDefault.png"
+import uploadDefaultImg from "/uploadDefault.png"
 import Loading from "../../Global/Loading/Loading"
 import Notifier from "../../Global/Notifier/Notifier"
 import DiscountedProductItem from "./DiscountedProductItem"
@@ -193,7 +193,7 @@ export default function EventCreateForm() {
                                     <input required name="endAt" className="border px-1 py-0.5 rounded-lg border-violet-200" placeholder="Nhập ngày kết thúc..." id="endAt-create-event-form" type="date" />
                                 </div>
                                 <div className="flex flex-col justify-center items-start w-full">
-                                    <label htmlFor="description-create-event-form" className="font-bold">Mô tả sản phẩm: </label>
+                                    <label htmlFor="description-create-event-form" className="font-bold">Mô tả sự kiện: </label>
                                     <textarea required name="description" id="description-create-event-form" type="text" placeholder="Nhập mô tả..." className="resize-y  outline-none h-32 w-full border p-1 rounded-lg border-violet-200" />
                                 </div>
 

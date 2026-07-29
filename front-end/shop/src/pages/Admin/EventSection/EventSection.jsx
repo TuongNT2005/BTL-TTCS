@@ -1,7 +1,7 @@
 import { FaPlus } from "react-icons/fa";
 
 import Card from "../Card";
-import { useState, useContext, useCallback, useEffect } from "react";
+import { useState, useContext, useCallback, useEffect, useRef } from "react";
 import Table from "../Table";
 import Badge from "../../Global/Bagde/Bagde";
 import ActionButtons from "../ActionButton";
@@ -12,10 +12,11 @@ import Loading from "../../Global/Loading/Loading";
 import EventSectionContext from "./EventSectionContext";
 import EventEditForm from "./EventEditForm";
 import EventCreateForm from "./EventCreateForm";
-import { fetchApiFunc, formatDate, getEventBadgeValue } from "../../../util";
+import { fetchApiFunc, formatDate, getEventBadgeValue, genID } from "../../../util";
 
 export default function EventsSection({ keyword }) {
 
+    const prevKeyword = useRef(keyword);
     const { token } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const [productList, setProductList] = useState("");
@@ -88,19 +89,23 @@ export default function EventsSection({ keyword }) {
     }, [keyword, token, setIsLoading, curPage, endAt, startAt])
 
     useEffect(() => {
+
+        if (prevKeyword.current !== keyword) {
+            if (curPage !== 1) {
+                setCurPage(1);
+            }
+
+            prevKeyword.current = keyword;
+            setRefreshKey(genID());
+        }
+
         async function fetchData() {
             const res = await searchData();
             setTotalPage(res.data.events.totalPages);
         }
 
         fetchData();
-    }, [searchData, refreshKey])
-
-    // Reset page khi keyword thay đổi
-    useEffect(() => {
-        setCurPage(1);
-    }, [keyword]);
-
+    }, [searchData, refreshKey, keyword, curPage])
 
     return <EventSectionContext.Provider value={{ ...editFormState, setEditFormState, refreshKey, setRefreshKey, productList, isCreateFormOpen, setIsCreateFormOpen }}>
         <> {editFormState.isEditFormOpen ? <EventEditForm></EventEditForm> : isCreateFormOpen ? <EventCreateForm></EventCreateForm> : <></>}

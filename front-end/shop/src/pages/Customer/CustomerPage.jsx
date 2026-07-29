@@ -1,6 +1,7 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import AppContext from "../../AppContext";
+import { useNavigate } from "react-router-dom";
 
 import { IoBarChart } from "react-icons/io5";
 import { FaBoxArchive } from "react-icons/fa6";
@@ -15,6 +16,10 @@ import { FaUser } from "react-icons/fa";
 import { LuClock3 } from "react-icons/lu";
 import { IoMail } from "react-icons/io5";
 import { RiShoppingBag3Fill } from "react-icons/ri";
+import { MdOutlineHistory } from "react-icons/md";
+import { RiMoneyDollarCircleFill } from "react-icons/ri";
+import { IoArrowBack } from "react-icons/io5";
+import { RiLogoutBoxLine } from "react-icons/ri";
 
 import Profile from "./Profile/Proflile";
 import CartSection from "./CartSection/CartSection";
@@ -29,8 +34,10 @@ const menuItems = [
     { key: "personal", label: "Cá nhân", icon: TbLayoutDashboardFilled },
     { key: "carts", label: "Gior hàng", icon: FaShoppingBag },
     { key: "orders", label: "Đơn hàng", icon: FaBoxArchive },
-    { key: "history", label: "Lịch sử", icon: FaUser },
-    { key: "refund", label: "Yêu cầu hoàn trả", icon: FaUser },
+    { key: "history", label: "Lịch sử", icon: MdOutlineHistory },
+    { key: "refund", label: "Yêu cầu hoàn trả", icon: RiMoneyDollarCircleFill },
+    { key: "home", label: "Quay lại", icon: IoArrowBack },
+    { key: "", label: "Đăng xuất", icon: RiLogoutBoxLine }
 ];
 
 
@@ -40,6 +47,26 @@ export default function CustomerPage() {
     const { authUser, token } = useContext(AppContext);
     const [user, setUser] = useState(authUser);
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    function onBackToHome() {
+        navigate("/home");
+    }
+
+    async function onLogout() {
+        await fetch(api.logout, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            credentials: "include"
+        })
+        navigate("/");
+    }
+
+    function onGoToSection(sectionKey) {
+        setActiveSection(sectionKey)
+    }
 
     console.log(authUser);
 
@@ -66,13 +93,13 @@ export default function CustomerPage() {
     return (
         <Container>
             <div className="flex relative h-screen">
-                <Sidebar active={activeSection} setActive={setActiveSection} />
+                <Sidebar active={activeSection} onBackToHome={onBackToHome} onGoToSection={onGoToSection} onLogout={onLogout} />
                 <div className="min-w-0 flex-1 flex flex-col">
 
                     {
                         isLoading ? <Loading></Loading> :
                             <>
-                                <Topbar active={activeSection} setActive={setActiveSection} keyword={keyword} setKeyword={setKeyword} user={user} />
+                                <Topbar active={activeSection} onBackToHome={onBackToHome} onGoToSection={onGoToSection} onLogout={onLogout} keyword={keyword} setKeyword={setKeyword} user={user} />
                                 <main className="space-y-6 p-4 sm:p-6 lg:p-8 flex-1 overflow-hidden">
 
                                     {activeSection === "personal" && <Profile user={user} setUser={setUser} ></Profile>}
@@ -95,7 +122,10 @@ function Container({ children }) {
     return <div className="min-h-screen bg-[#f8f7ff] text-slate-800">{children}</div>;
 }
 
-function Sidebar({ active, setActive }) {
+function Sidebar({ active, onBackToHome, onGoToSection, onLogout }) {
+
+
+
     return (
         <aside className="hidden w-72 shrink-0 border-r border-violet-100 bg-white xl:flex xl:flex-col sticky top-0 left-0">
             <div className="border-b border-violet-100 p-6">
@@ -109,7 +139,7 @@ function Sidebar({ active, setActive }) {
                     return (
                         <button
                             key={item.key}
-                            onClick={() => setActive(item.key)}
+                            onClick={item.key === "" ? onLogout : item.key === "home" ? onBackToHome : () => onGoToSection(item.key)}
                             className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-semibold transition cursor-pointer ${isActive ? "bg-violet-600 text-white shadow-lg" : "text-slate-600 hover:bg-violet-50 hover:text-violet-700"
                                 }`}
                         >
@@ -123,7 +153,7 @@ function Sidebar({ active, setActive }) {
     );
 }
 
-function Topbar({ active, setActive, user }) {
+function Topbar({ active, onBackToHome, onGoToSection, onLogout, user }) {
     return (
         <div className="sticky top-0 left-0 z-30 border-b border-violet-100 bg-white/90 backdrop-blur">
             <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
@@ -146,7 +176,7 @@ function Topbar({ active, setActive, user }) {
                 {menuItems.map((item) => (
                     <button
                         key={item.key}
-                        onClick={() => setActive(item.key)}
+                        onClick={item.key === "" ? onLogout : item.key === "home" ? onBackToHome : () => onGoToSection(item.key)}
                         className={`whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold ${active === item.key ? "bg-violet-600 text-white" : "bg-white text-slate-600 border border-violet-100"}`}
                     >
                         {item.label}
