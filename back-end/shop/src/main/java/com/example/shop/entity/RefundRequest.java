@@ -9,9 +9,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,11 +36,13 @@ public class RefundRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "userid")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid")
+    private User user;
 
-    @Column(name = "orderitemid")
-    private Integer orderItemId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderitemid")
+    private OrderItem orderItem;
 
     @Column(name = "reason")
     private String reason;
@@ -53,4 +59,13 @@ public class RefundRequest {
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    @Override
+    public String toString() {
+        return "RefundRequest [id=" + id + ", reason=" + reason
+                + ", image=" + image + ", createdAt=" + createdAt + ", status=" + status + ", quantity=" + quantity
+                + "]";
+    }
+
+    
 }

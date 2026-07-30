@@ -1,15 +1,14 @@
     package com.example.shop.entity;
 
 
-import com.example.shop.enums.Returned;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,15 +29,13 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "orderid")
-    private Integer orderId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderid")
+    private Order order;
 
-    @Column(name = "productvariantid")
-    private Integer productVariantId;
-
-    @Column(name = "returned")
-    @Enumerated(EnumType.STRING)
-    private Returned returned;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "productvariantid")
+    private ProductVariant productVariant;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -48,4 +45,12 @@ public class OrderItem {
 
     @Column(name = "discount")
     private Integer discount;
+
+    @Override
+    public String toString() {
+        return "OrderItem [id=" + id + ", quantity="
+                + quantity + ", price=" + price + ", discount=" + discount + "]";
+    }
+
+    
 }

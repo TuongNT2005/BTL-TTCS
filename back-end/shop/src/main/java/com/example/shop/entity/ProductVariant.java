@@ -1,5 +1,7 @@
 package com.example.shop.entity;
 
+import java.util.Set;
+
 import com.example.shop.enums.ProductVariantStatus;
 import com.example.shop.enums.Size;
 
@@ -7,9 +9,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,11 +37,19 @@ public class ProductVariant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "productid")
-    private Integer productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "productid")
+    private Product product;
 
-    @Column(name = "colorid")
-    private Integer colorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "colorid")
+    private Color color;
+
+    @OneToMany(mappedBy = "productVariant", fetch = FetchType.LAZY)
+    private Set<ImportHistory> importHistories;
+
+    @OneToMany(mappedBy = "productVariant", fetch = FetchType.LAZY)
+    private Set<CartItem> cartItems;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "size")
@@ -56,5 +70,14 @@ public class ProductVariant {
 
     @Column(name = "image")
     private String image;
+
+    @Override
+    public String toString() {
+        return "ProductVariant [id=" + id + ", color=" + color + ", importCost=" + importCost
+                + ", purchasePrice=" + purchasePrice + ", status=" + status + ", quantity=" + quantity + ", image="
+                + image + "]";
+    }
+
+    
 }
 

@@ -1,6 +1,7 @@
 package com.example.shop.entity;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import com.example.shop.enums.OrderStatus;
 
@@ -8,9 +9,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,8 +36,12 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "userid")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid")
+    private User user;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
+    private Set<OrderItem> orderItems;
 
     @Column(name = "address")
     private String address;
@@ -55,6 +64,15 @@ public class Order {
 
     @Column(name = "coinused")
     private Long coinUsed;
+
+    @Override
+    public String toString() {
+        return "Order [id=" + id + ", address=" + address + ", phone="
+                + phone + ", createdAt=" + createdAt + ", expriredat=" + expriredat + ", paidAt=" + paidAt + ", status="
+                + status + ", coinUsed=" + coinUsed + "]";
+    }
+
+    
 }
 
 

@@ -26,4 +26,11 @@ public class Color {
 
     @Column(name = "name")
     private String name;
+
+    @Override
+    public String toString() {
+        return "Color [id=" + id + ", name=" + name + "]";
+    }
+
+    
 }

@@ -1,12 +1,19 @@
 package com.example.shop.entity;
 
 import java.time.LocalDate;
+import java.util.Set;
+
+import org.springframework.security.core.parameters.P;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,4 +51,23 @@ public class Event {
 
     @Column(name = "endat")
     private LocalDate endAt;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "product_event",
+        joinColumns = {
+            @JoinColumn(name = "eventid")
+        }, inverseJoinColumns = {
+            @JoinColumn(name = "productid")
+        }
+    )
+    private Set<Product> discountedProducts;
+
+    @Override
+    public String toString() {
+        return "Event [id=" + id + ", title=" + title + ", description=" + description + ", image=" + image
+                + ", discount=" + discount + ", startAt=" + startAt + ", endAt=" + endAt + "]";
+    }
+
+    
 }

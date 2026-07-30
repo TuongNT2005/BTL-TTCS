@@ -4,9 +4,12 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,11 +30,13 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "userid")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid")
+    private User user;
 
-    @Column(name = "productid")
-    private Integer productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "productid")
+    private Product product;
 
     @Column(name = "content")
     private String content;
@@ -41,4 +46,12 @@ public class Comment {
 
     @Column(name = "createdat")
     private LocalDate createdAt;
+
+    @Override
+    public String toString() {
+        return "Comment [id=" + id + ", content=" + content + ", star="
+                + star + ", createdAt=" + createdAt + "]";
+    }
+
+    
 }
