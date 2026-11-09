@@ -5,6 +5,7 @@ import java.util.Set;
 import com.example.shop.enums.ProductVariantStatus;
 import com.example.shop.enums.Size;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,31 +18,45 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Table(name = "productvariant")
 public class ProductVariant {
+
+    public ProductVariant(Integer id, Product product, Color color, Set<ImportHistory> importHistories,
+                          Set<CartItem> cartItems, Size size, Long importCost, Long purchasePrice,
+                          ProductVariantStatus status, Integer quantity, String image) {
+        this.id = id;
+        this.product = product;
+        this.color = color;
+        this.importHistories = importHistories;
+        this.cartItems = cartItems;
+        this.size = size;
+        this.importCost = importCost;
+        this.purchasePrice = purchasePrice;
+        this.status = status;
+        this.quantity = quantity;
+        this.image = image;
+    }
+
+    public ProductVariant() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "productid")
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "colorid")
     private Color color;
 

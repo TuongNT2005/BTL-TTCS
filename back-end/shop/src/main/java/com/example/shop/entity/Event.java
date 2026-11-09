@@ -3,8 +3,6 @@ package com.example.shop.entity;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.springframework.security.core.parameters.P;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,20 +13,30 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Table(name = "event")
 public class Event {
+
+    public Event(Integer id, String title, String description, String image, Integer discount, LocalDate startAt, LocalDate endAt, Set<Product> discountedProducts) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.image = image;
+        this.discount = discount;
+        this.startAt = startAt;
+        this.endAt = endAt;
+        this.discountedProducts = discountedProducts;
+    }
+
+    public Event() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

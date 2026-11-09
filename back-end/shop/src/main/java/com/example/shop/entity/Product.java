@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.annotations.ManyToAny;
 
 import com.example.shop.enums.Category;
 
@@ -19,20 +18,30 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Table(name = "product")
 public class Product {
+
+    public Product(Integer id, String name, String description, String image, Category category,
+                   Set<ProductVariant> productVariants, Set<Event> events, Set<Comment> comments) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.image = image;
+        this.category = category;
+        this.productVariants = productVariants;
+        this.events = events;
+        this.comments = comments;
+    }
+    public Product() {
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -51,7 +60,7 @@ public class Product {
     private Category category;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private Set<ProductVariant> preProductVariants;
+    private Set<ProductVariant> productVariants;
 
     @ManyToMany(mappedBy = "discountedProducts", fetch = FetchType.LAZY)
     private Set<Event> events;
@@ -65,7 +74,7 @@ public class Product {
         categories.add("SHIRT");
         categories.add("DRESS");
         categories.add("SET");
-        categories.add("SPORTWEAR");
+        categories.add("SPORTSWEAR");
         return categories;
     }
 
@@ -75,6 +84,5 @@ public class Product {
                 + ", category=" + category + "]";
     }
 
-    
 }
 

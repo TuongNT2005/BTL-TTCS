@@ -15,21 +15,38 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "user")
 @Builder
 public class User{
+
+    public User(Integer id, String password, String username, String email, String phone, String address,
+                String avatar, UserEnum status, UserEnum role, Long coin, Set<RefundRequest> refundRequests,
+                Set<Order> orders, Set<Comment> comments, Set<CartItem> cartItems) {
+        this.id = id;
+        this.password = password;
+        this.username = username;
+        this.email = email;
+        this.phone = (phone != null) ? phone : "";
+        this.address = (address != null) ? address : "";
+        this.avatar = (avatar != null) ? avatar : "";
+        this.status = (status != null) ? status : UserEnum.ACTIVE;
+        this.role = (role != null) ? role : UserEnum.USER;
+        this.coin = (coin != null) ? coin : 0L;
+        this.refundRequests = refundRequests;
+        this.orders = orders;
+        this.comments = comments;
+        this.cartItems = cartItems;
+    }
+
+    public User() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,28 +58,35 @@ public class User{
     @Column(name = "username")
     private String username;
 
-    @Column(name = "email")
+    @Column(name = "email", 
+            columnDefinition = "VARCHAR(255) NOT NULL UNIQUE")
     private String email;
 
+    @Builder.Default
     @Column(name = "phone")
-    private String phone;
+    private String phone = "";
 
+    @Builder.Default
     @Column(name = "address")
-    private String address;
+    private String address = "";
 
+    @Builder.Default
     @Column(name = "avatar")
-    private String avatar;
+    private String avatar = "";
 
+    @Builder.Default
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private UserEnum status;
+    private UserEnum status = UserEnum.ACTIVE;
 
+    @Builder.Default
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private UserEnum role;
+    private UserEnum role = UserEnum.USER;
 
+    @Builder.Default
     @Column(name = "coin")
-    private Long coin;
+    private Long coin = 0l;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<RefundRequest> refundRequests;

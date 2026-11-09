@@ -1,4 +1,4 @@
-package com.example.shop.dto_interface;
+package com.example.shop.dto.projection_interface;
 
 import java.util.Iterator;
 import java.util.Set;

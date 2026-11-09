@@ -38,4 +38,21 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
         @Param("userId") Integer userId,
         Pageable pageable
     );
+
+    @Query(
+        value = """
+            SELECT oi FROM OrderItem oi
+            JOIN oi.order o
+            WHERE o.user.id = :userId AND o.status = com.example.shop.enums.OrderStatus.DELIVERIED
+        """,
+        countQuery = """
+            SELECT count(oi) FROM OrderItem oi
+            JOIN oi.order o
+            WHERE o.user.id = :userId AND o.status = com.example.shop.enums.OrderStatus.DELIVERIED
+        """
+    )
+    Page<com.example.shop.dto.projection_interface.BoughtItemProjection> findBoughtItemsByUserId(
+        @Param("userId") Integer userId,
+        Pageable pageable
+    );
 }

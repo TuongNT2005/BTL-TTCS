@@ -17,20 +17,31 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Table(name = "refundrequest")
 public class RefundRequest {
+
+    public RefundRequest(Integer id, User user, OrderItem orderItem, String reason, String image,
+                         LocalDateTime createdAt, RefundStatus status, Integer quantity) {
+        this.id = id;
+        this.user = user;
+        this.orderItem = orderItem;
+        this.reason = reason;
+        this.image = image;
+        this.createdAt = createdAt;
+        this.status = status;
+        this.quantity = quantity;
+    }
+
+    public RefundRequest() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
